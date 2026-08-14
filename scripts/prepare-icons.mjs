@@ -5,9 +5,12 @@
  *     -> assets/whale-black.png       (256px frame extracted losslessly,
  *                                       used for the Linux .desktop entry and
  *                                       the README preview)
+ *     -> assets/whale-black.icns      (Apple icon container, used by the
+ *                                       macOS .app bundle)
  *
  * The .ico contains PNG-compressed frames, so extraction is a byte-exact copy;
- * every frame is zlib-inflated once to prove it is not corrupted.
+ * every frame is zlib-inflated once to prove it is not corrupted. The .icns is
+ * assembled from those same PNG frames — no re-encoding anywhere.
  *
  * Run:  node scripts/prepare-icons.mjs        (or `npm run icon`)
  */
@@ -21,6 +24,7 @@ const ASSETS = path.join(ROOT, 'assets');
 
 export const CANONICAL_ICO = path.join(ASSETS, 'deepseek-whale-black.ico');
 export const OUTPUT_PNG = path.join(ASSETS, 'whale-black.png');
+export const OUTPUT_ICNS = path.join(ASSETS, 'whale-black.icns');
 
 /** Sizes a release icon should carry. */
 export const REQUIRED_SIZES = [16, 32, 48, 256];
@@ -102,10 +106,46 @@ export function extractFrame(entries, size) {
   return entry.buf;
 }
 
-/** Run the full prepare step: validate + extract. */
+/**
+ * ICNS chunk type for each icon size (PNG data is accepted in all of them).
+ * icp4/5/6 are the legacy 16/32/48 px types; ic07/ic08 are 128/256 px;
+ * ic12 is the 32 pt @2x (64 px) retina variant.
+ */
+const ICNS_CHUNK_BY_SIZE = { 16: 'icp4', 32: 'icp5', 48: 'icp6', 64: 'ic12', 128: 'ic07', 256: 'ic08' };
+
+/**
+ * Assemble an Apple `.icns` container from ICO frames (byte-exact copies).
+ * Returns the full binary, or null if none of the expected sizes is present.
+ */
+export function buildICNS(entries) {
+  const chunks = [];
+  let total = 8; // 'icns' magic + total size
+  for (const [size, type] of Object.entries(ICNS_CHUNK_BY_SIZE)) {
+    const frame = entries.find((e) => e.width === Number(size) && e.height === Number(size));
+    if (!frame) continue;
+    chunks.push({ type, data: frame.buf });
+    total += 8 + frame.buf.length;
+  }
+  if (chunks.length === 0) return null;
+  const out = Buffer.alloc(total);
+  out.write('icns', 0, 'ascii');
+  out.writeUInt32BE(total, 4);
+  let offset = 8;
+  for (const { type, data } of chunks) {
+    out.write(type, offset, 'ascii');
+    out.writeUInt32BE(8 + data.length, offset + 4);
+    data.copy(out, offset + 8);
+    offset += 8 + data.length;
+  }
+  return out;
+}
+
+/** Run the full prepare step: validate + extract PNG + assemble ICNS. */
 export function prepareIcons() {
   const entries = validateIcons(parseICO(readFileSync(CANONICAL_ICO)));
   writeFileSync(OUTPUT_PNG, extractFrame(entries, 256));
+  const icns = buildICNS(entries);
+  if (icns) writeFileSync(OUTPUT_ICNS, icns);
   return entries;
 }
 
@@ -114,4 +154,5 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   console.log(`Icons prepared from ${path.basename(CANONICAL_ICO)}:`);
   for (const e of entries) console.log(`  ${e.width}x${e.height} (${e.size} bytes, PNG)`);
   console.log(`  -> ${path.relative(ROOT, OUTPUT_PNG)} (256x256 frame)`);
+  console.log(`  -> ${path.relative(ROOT, OUTPUT_ICNS)} (Apple icon container)`);
 }

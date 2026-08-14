@@ -12,6 +12,7 @@ Assuming you already have DeepSeek Harness installed, it:
 - 🚀 Starts `dsh web` if it is not running (never spawns a duplicate)
 - 🌐 Waits for the web UI and opens your browser (default `http://127.0.0.1:3080`)
 - 🐳 Creates a **“DeepSeek Harness” desktop shortcut with the black whale icon**
+  (Windows `.lnk` / macOS `.app` / Linux `.desktop`)
 - 🪵 Logs everything to `~/.dsh-launcher/run/web.log`; double-click starts silently, failures pop a message box
 
 Zero runtime dependencies (plain Node.js ≥ 18.17), bilingual (zh/en) output, Windows / Linux / macOS.
@@ -119,7 +120,8 @@ Environment variables: `DSH_LAUNCHER_HARNESS`, `DSH_LAUNCHER_PORT`, `DSH_LAUNCHE
 - Canonical source: `assets/deepseek-whale-black.ico` — the black whale, 16/24/32/48/64/128/256 px.
   To change it, replace the file (same name, common sizes included) and run `npm run icon`.
 - `npm run icon` validates the ICO and losslessly extracts the 256 px frame into
-  `assets/whale-black.png` (used by the Linux desktop entry and this README).
+  `assets/whale-black.png` (used by the Linux desktop entry and this README), and packs
+  the frames into `assets/whale-black.icns` (the macOS `.app` icon).
 - The whale mark belongs to DeepSeek; this project uses it only for the local shortcut.
 
 ## Build & release
@@ -198,7 +200,10 @@ Re-run `node bin\launcher.mjs install --force` (the shortcut records absolute pa
 `node bin\launcher.mjs stop`, or run `stop.cmd`. Only launcher-started instances are stopped.
 
 **macOS?**
-All core commands work; for a desktop icon, drag `bin/launcher.mjs` to the Dock or wrap it with Automator.
+Fully supported. `node bin\launcher.mjs install` builds a minimal
+`~/Applications/DeepSeek Harness.app` (black whale icon, `LSUIElement` so no Dock icon
+lingers) and links it on the Desktop — double-click to start the harness and open the
+browser. Uninstall with `node bin\launcher.mjs uninstall`.
 
 ## Maintaining & contributing
 

@@ -2,6 +2,19 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)。格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)。
 
+## [1.1.0] - 2025-08-14
+
+### 新增
+- macOS 桌面快捷方式支持：
+  - `install` 在 `~/Applications/DeepSeek Harness.app` 生成最小化 `.app`
+    （黑色小鲸鱼图标、`LSUIElement` 不残留 Dock 图标），并在桌面放快捷方式；
+    双击即启动 harness 并打开浏览器
+  - `uninstall` 删除该 `.app` 与桌面链接
+- `assets/whale-black.icns`：从权威 ICO 的 PNG 帧无损打包的 Apple 图标容器
+  （`npm run icon` 一并生成，含 16/32/48/64/128/256px 各档 chunk）
+- `doctor` 的快捷方式路径改为按平台显示（Windows `.lnk` / macOS `.app` / Linux `.desktop`）
+- 单元测试：ICNS 结构校验、macOS 应用构建器（Info.plist / 启动脚本）纯函数测试
+
 ## [1.0.0] - 2025-08-14
 
 ### 新增

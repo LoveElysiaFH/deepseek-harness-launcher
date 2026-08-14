@@ -10,7 +10,7 @@ import { findCheckout, findOnPath, resolveRunner } from './detect.mjs';
 import { makeT } from './i18n.mjs';
 import { CONFIG_FILE, launcherRoot, LAUNCHER_HOME } from './paths.mjs';
 import * as server from './server.mjs';
-import { getDesktopPath, installShortcut, shortcutExists, SHORTCUT_NAME, uninstallShortcut } from './shortcut.mjs';
+import { installShortcut, shortcutExists, shortcutPath, uninstallShortcut } from './shortcut.mjs';
 
 const VERSION = JSON.parse(
   fs.readFileSync(new URL('../package.json', import.meta.url), 'utf8'),
@@ -136,9 +136,9 @@ function cmdDoctor(opts, t) {
     console.log(t('doctor.pidNone'));
   }
 
-  const shortcutPath = `${getDesktopPath()}/${process.platform === 'win32' ? `${SHORTCUT_NAME}.lnk` : 'deepseek-harness.desktop'}`;
+  const shortcutPathValue = shortcutPath();
   console.log(shortcutExists()
-    ? t('doctor.shortcut', { path: shortcutPath })
+    ? t('doctor.shortcut', { path: shortcutPathValue })
     : t('doctor.shortcutNone'));
 
   console.log(fs.existsSync(iconPath) ? t('doctor.icon', { path: iconPath }) : t('doctor.iconNone'));

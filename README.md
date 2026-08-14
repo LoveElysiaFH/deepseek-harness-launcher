@@ -12,6 +12,7 @@
 - 🚀 自动启动 `dsh web`（已在运行就直接打开，绝不重复启动）
 - 🌐 等待 Web 界面就绪后**自动打开浏览器**（默认 `http://127.0.0.1:3080`）
 - 🐳 创建桌面快捷方式 **“DeepSeek Harness”**，图标是**黑色小鲸鱼**
+  （Windows `.lnk` / macOS `.app` / Linux `.desktop`）
 - 🪵 完整日志落盘（`~/.dsh-launcher/run/web.log`），双击桌面图标静默启动、失败弹窗提示
 
 零运行时依赖（纯 Node.js，≥ 18.17），中英双语提示，Windows / Linux / macOS 均可运行。
@@ -117,7 +118,8 @@ node bin\launcher.mjs config set harness.timeoutSec 120
 - **权威源**：`assets/deepseek-whale-black.ico` —— 黑色小鲸鱼，含 16/24/32/48/64/128/256px 七档。
   想换图标：直接替换该文件（保持同名、含常用尺寸），然后运行 `npm run icon`。
 - `npm run icon` 会校验 ICO 并**无损提取** 256px 帧生成 `assets/whale-black.png`
-  （Linux 桌面入口与 README 预览使用），全部由零依赖脚本完成，CI 亦可复现。
+  （Linux 桌面入口与 README 预览使用），同时把各尺寸帧打包成
+  `assets/whale-black.icns`（macOS `.app` 图标），全部由零依赖脚本完成，CI 亦可复现。
 - 小鲸鱼图案版权归 DeepSeek 所有，本项目仅将其用于本地快捷方式。
 
 ## 构建与发布
@@ -197,8 +199,9 @@ deepseek-harness-launcher/
 `node bin\launcher.mjs stop`，或直接运行 `stop.cmd`。只会停止本启动器启动的实例。
 
 **macOS 呢？**
-核心功能（start/stop/status/doctor/config）全部可用；桌面快捷方式请将
-`bin/launcher.mjs` 拖入 Dock，或用 Automator 创建应用程序包裹它。
+完全支持。运行 `node bin\launcher.mjs install` 会在 `~/Applications/DeepSeek Harness.app`
+生成一个最小化应用（黑色小鲸鱼图标、LSUIElement 不残留 Dock 图标），并在桌面放一个
+快捷方式，双击即启动 harness 并打开浏览器。卸载用 `node bin\launcher.mjs uninstall`。
 
 ## 维护与贡献
 

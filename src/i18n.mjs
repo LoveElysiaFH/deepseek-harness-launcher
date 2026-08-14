@@ -83,8 +83,9 @@ If the harness lives in a non-standard location, point the launcher at it:
     'shortcut.already': 'Shortcut "{name}" already exists. Re-run with --force to overwrite.',
     'shortcut.uninstalled': 'Shortcut "{name}" removed from the Desktop.',
     'shortcut.missing': 'Shortcut "{name}" was not found on the Desktop.',
-    'shortcut.unsupported': 'Desktop shortcut creation is only supported on Windows and Linux. macOS: add bin/launcher.mjs to the Dock or use Automator (see README).',
+    'shortcut.unsupported': 'Desktop shortcut creation is only supported on Windows, macOS and Linux.',
     'shortcut.linuxFiles': 'Linux desktop entry installed:\n  {desktop}\n  {applications}\nIcon: {icon}',
+    'shortcut.macInstalled': 'macOS app installed: {app}\nDesktop link: {alias}',
     'shortcut.vbsWritten': 'Silent launcher written: {path}',
 
     'doctor.node': 'node             {version}',
@@ -197,8 +198,9 @@ If the harness lives in a non-standard location, point the launcher at it:
     'shortcut.already': '快捷方式 "{name}" 已存在。加 --force 可覆盖。',
     'shortcut.uninstalled': '已从桌面删除快捷方式 "{name}"。',
     'shortcut.missing': '桌面上未找到快捷方式 "{name}"。',
-    'shortcut.unsupported': '桌面快捷方式仅支持 Windows 和 Linux。macOS 请把 bin/launcher.mjs 加入 Dock 或用 Automator（见 README）。',
+    'shortcut.unsupported': '桌面快捷方式仅支持 Windows、macOS 和 Linux。',
     'shortcut.linuxFiles': 'Linux 桌面入口已安装:\n  {desktop}\n  {applications}\n图标: {icon}',
+    'shortcut.macInstalled': 'macOS 应用已安装: {app}\n桌面链接: {alias}',
     'shortcut.vbsWritten': '静默启动脚本已写入: {path}',
 
     'doctor.node': 'node              {version}',
