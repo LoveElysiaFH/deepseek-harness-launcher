@@ -79,6 +79,48 @@ node bin\launcher.mjs status   # 查看运行状态
 > 也可用环境变量 `DSH_LAUNCHER_HARNESS`（Windows `set`、macOS/Linux `export`）。
 > 指定后运行 `node bin\launcher.mjs doctor` 验证，应显示你填的路径。
 
+## 首次安装：从零到双击启动（推荐顺序）
+
+如果你（或使用者）还没装过 harness，请**严格按这个顺序**操作，一步都别漏：
+
+1. **安装 Node.js**（≥ 18.17）：<https://nodejs.org>，装完 `node --version` 验证。
+
+2. **⚠️ 安装 pnpm（源码构建 harness 必需，是最容易漏的一步）**：
+
+   ```sh
+   npm install -g pnpm
+   pnpm --version   # 能打印版本号才算装好
+   ```
+
+   > 没有 pnpm 时，harness 源码无法构建，启动器就会报
+   > `DeepSeek Harness failed to start`（退出码 1）。
+
+3. **下载并构建 DeepSeek Harness 源码**：
+
+   ```sh
+   git clone https://github.com/deepseek-ai/deepseek-harness.git
+   cd deepseek-harness
+   pnpm install
+   pnpm run build
+   ```
+
+   > 构建完成后，harness 目录里应存在 `apps/web/dist/index.html`。
+   > 不想从源码构建？也可改用 npm 方式：`npx @deepseek-ai/dsh web` 能正常启动即可跳过本步。
+
+4. **下载本启动器，指定 harness 目录，并安装快捷方式**：
+
+   ```sh
+   git clone https://github.com/LoveElysiaFH/deepseek-harness-launcher.git
+   cd deepseek-harness-launcher
+   node bin\launcher.mjs config set harness.cwd "D:/你的路径/deepseek-harness"   # 指向第 3 步的 harness 目录
+   node bin\launcher.mjs install
+   ```
+
+5. **双击桌面「DeepSeek Harness」**（黑色小鲸鱼图标）——自动启动 harness 并打开浏览器。
+
+> 验证：`node bin\launcher.mjs doctor` 应显示「harness 源码目录」指向第 3 步的目录，
+> 且「Web 界面」为运行中。
+
 ## 工作原理
 
 双击桌面快捷方式后，三平台殊途同归——最终都执行 `node bin\launcher.mjs start`：

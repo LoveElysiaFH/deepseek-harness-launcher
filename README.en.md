@@ -79,6 +79,49 @@ node bin\launcher.mjs status   # show the running state
 > Or set the `DSH_LAUNCHER_HARNESS` environment variable (`set` on Windows, `export` on macOS/Linux).
 > Verify with `node bin\launcher.mjs doctor` — it should show the path you gave.
 
+## First-time setup: from zero to double-click (recommended order)
+
+If you (or the end user) haven't installed the harness yet, follow this order **exactly**:
+
+1. **Install Node.js** (≥ 18.17): <https://nodejs.org>, then verify with `node --version`.
+
+2. **⚠️ Install pnpm (required to build the harness from source — the most commonly missed step)**:
+
+   ```sh
+   npm install -g pnpm
+   pnpm --version   # must print a version number
+   ```
+
+   > Without pnpm, the harness source cannot be built and the launcher fails with
+   > `DeepSeek Harness failed to start` (exit code 1).
+
+3. **Download and build the DeepSeek Harness source**:
+
+   ```sh
+   git clone https://github.com/deepseek-ai/deepseek-harness.git
+   cd deepseek-harness
+   pnpm install
+   pnpm run build
+   ```
+
+   > After building, `apps/web/dist/index.html` must exist inside the harness folder.
+   > Prefer not to build from source? Use the npm route instead: if `npx @deepseek-ai/dsh web`
+   > starts, you can skip this step.
+
+4. **Download this launcher, point it at the harness, and install the shortcut**:
+
+   ```sh
+   git clone https://github.com/LoveElysiaFH/deepseek-harness-launcher.git
+   cd deepseek-harness-launcher
+   node bin\launcher.mjs config set harness.cwd "D:/your/path/deepseek-harness"   # step 3's harness folder
+   node bin\launcher.mjs install
+   ```
+
+5. **Double-click “DeepSeek Harness”** on the Desktop (black whale icon) — it starts the harness and opens the browser.
+
+> Verify: `node bin\launcher.mjs doctor` should show “harness checkout” pointing at the
+> step-3 folder, and “web UI” as serving.
+
 ## How it works
 
 On every platform, double-clicking the shortcut funnels into the same command,
