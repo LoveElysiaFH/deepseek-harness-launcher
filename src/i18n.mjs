@@ -25,6 +25,7 @@ Options:
   --url <url>      Web UI URL (default http://127.0.0.1:<port>)
   --timeout <sec>  Startup wait timeout (default 90)
   --no-browser     Start without opening the browser
+  --restart        Restart the running instance (instead of just opening the browser)
   --cwd <dir>      Harness checkout directory hint (auto-detected otherwise)
   --command <cmd>  Run an explicit command instead of auto-detection
   --lang zh|en     Message language (default: auto)
@@ -67,6 +68,8 @@ If the harness lives in a non-standard location, point the launcher at it:
     'server.timeout': 'dsh did not respond within {seconds}s. See {log} for details.',
     'server.noPid': 'No pid file found; nothing started by this launcher to stop.',
     'server.stopped': 'DeepSeek Harness web instance stopped (pid {pid}).',
+    'server.restarting': 'Restarting the running instance (pid {pid})...',
+    'server.restartSkipped': 'Already running at {url} but not started by this launcher; restart skipped, opening the browser only.',
     'server.stillServing': 'Note: {url} is still responding; that instance was not started by this launcher. Stop it manually if needed.',
     'server.notRunning': 'Not running: {url}',
     'server.logTail': 'Last log lines from {log}:',
@@ -140,6 +143,7 @@ If the harness lives in a non-standard location, point the launcher at it:
   --url <url>      Web 界面地址（默认 http://127.0.0.1:<port>）
   --timeout <sec>  启动等待超时（默认 90 秒）
   --no-browser     启动但不自动打开浏览器
+  --restart        重启运行中的实例（而不是仅打开浏览器）
   --cwd <dir>      harness 源码目录提示（默认自动检测）
   --command <cmd>  使用指定命令启动（跳过自动检测）
   --lang zh|en     提示语言（默认自动）
@@ -182,6 +186,8 @@ If the harness lives in a non-standard location, point the launcher at it:
     'server.timeout': 'dsh 在 {seconds} 秒内未响应。详见 {log}。',
     'server.noPid': '未找到 pid 文件，本启动器没有已启动的实例可停止。',
     'server.stopped': 'DeepSeek Harness Web 实例已停止（pid {pid}）。',
+    'server.restarting': '正在重启运行中的实例（pid {pid}）...',
+    'server.restartSkipped': '{url} 已在运行但不是本启动器启动的，已跳过重启（仅打开浏览器）。',
     'server.stillServing': '注意: {url} 仍在响应，该实例不是本启动器启动的，如需停止请手动处理。',
     'server.notRunning': '未运行: {url}',
     'server.logTail': '{log} 最近几行日志:',

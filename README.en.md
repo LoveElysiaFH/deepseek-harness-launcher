@@ -10,6 +10,7 @@ Assuming you already have DeepSeek Harness installed, it:
 
 - 🔍 Locates your harness automatically (`dsh` on PATH, or a source checkout)
 - 🚀 Starts `dsh web` if it is not running (never spawns a duplicate)
+- 🔄 Optional “restart” mode: when enabled, re-launching stops the old `dsh web` and starts a fresh one (off by default)
 - 🌐 Waits for the web UI and opens your browser (default `http://127.0.0.1:3080`)
 - 🐳 Creates a **“DeepSeek Harness” desktop shortcut with the black whale icon**
   (Windows `.lnk` / macOS `.app` / Linux `.desktop`)
@@ -160,7 +161,7 @@ Detection order (check with `doctor`):
 | `version` | Print the version |
 | `help` | Full help |
 
-Common flags: `--port <n>`, `--url <url>`, `--timeout <sec>`, `--no-browser`, `--cwd <dir>`, `--command <cmd>`, `--lang zh|en`.
+Common flags: `--port <n>`, `--url <url>`, `--timeout <sec>`, `--no-browser`, `--restart`, `--cwd <dir>`, `--command <cmd>`, `--lang zh|en`.
 
 Examples:
 
@@ -186,8 +187,25 @@ Precedence: **CLI flags > environment variables > config file > defaults**.
 | `harness.url` | `null` | Web URL (null = `http://127.0.0.1:<port>`) |
 | `harness.timeoutSec` | `90` | Startup wait timeout |
 | `harness.openBrowser` | `true` | Open the browser after startup |
+| `harness.restartOnRerun` | `false` | When already running, stop the old instance and start fresh (restart mode) |
 
 Environment variables: `DSH_LAUNCHER_HARNESS`, `DSH_LAUNCHER_PORT`, `DSH_LAUNCHER_URL`, `DSH_LAUNCHER_TIMEOUT`, `DSH_LAUNCHER_NO_BROWSER=1`, `DSH_LAUNCHER_LANG`, `DSH_LAUNCHER_HOME`.
+
+### Restart mode
+
+By default, `start` (including the desktop icon) only opens the browser when `dsh web`
+is already running. To **restart the harness on every launch**, enable restart mode:
+
+```sh
+node bin\launcher.mjs config set harness.restartOnRerun true
+```
+
+Or for a single run: `node bin\launcher.mjs start --restart`.
+
+> ⚠️ Risk note: restarting terminates the currently running session (unsaved chats/tasks
+> are lost) and briefly disconnects. Also, only instances started by this launcher
+> (with a pid file) are restarted; one started manually via `npx @deepseek-ai/dsh web`
+> is **skipped** (browser only) so your other processes are never killed.
 
 ## Icon
 

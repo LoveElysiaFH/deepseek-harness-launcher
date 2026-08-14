@@ -10,6 +10,7 @@
 
 - 🔍 自动找到你机器上的 harness（PATH 上的 `dsh` 命令，或源码 checkout 目录）
 - 🚀 自动启动 `dsh web`（已在运行就直接打开，绝不重复启动）
+- 🔄 可选「重启」模式：开启后，重新双击会先停掉旧的 `dsh web` 再重新启动（默认关闭）
 - 🌐 等待 Web 界面就绪后**自动打开浏览器**（默认 `http://127.0.0.1:3080`）
 - 🐳 创建桌面快捷方式 **“DeepSeek Harness”**，图标是**黑色小鲸鱼**
   （Windows `.lnk` / macOS `.app` / Linux `.desktop`）
@@ -184,8 +185,25 @@ node bin\launcher.mjs config set harness.timeoutSec 120
 | `harness.url` | `null` | Web 地址（null = `http://127.0.0.1:<port>`） |
 | `harness.timeoutSec` | `90` | 启动等待超时 |
 | `harness.openBrowser` | `true` | 启动后是否打开浏览器 |
+| `harness.restartOnRerun` | `false` | 已运行时，重新启动是否先停旧再启新（重启模式） |
 
 环境变量：`DSH_LAUNCHER_HARNESS`、`DSH_LAUNCHER_PORT`、`DSH_LAUNCHER_URL`、`DSH_LAUNCHER_TIMEOUT`、`DSH_LAUNCHER_NO_BROWSER=1`、`DSH_LAUNCHER_LANG`、`DSH_LAUNCHER_HOME`。
+
+### 重启模式
+
+默认情况下，`start`（含双击桌面图标）检测到 `dsh web` 已在运行就只打开浏览器、不重启。
+若你想**每次双击都重启 harness**，开启重启模式：
+
+```sh
+node bin\launcher.mjs config set harness.restartOnRerun true
+```
+
+或单次生效：`node bin\launcher.mjs start --restart`。
+
+> ⚠️ 风险提示：重启会**终止当前正在运行的会话**（未保存的对话/任务会丢失），
+> 并短暂断开再重连。此外，只有「由本启动器启动的实例」（有 pid 文件）才会被重启；
+> 手动用 `npx @deepseek-ai/dsh web` 之类开起来的实例会被**跳过**（只打开浏览器），
+> 以保证不误杀你的其他进程。
 
 ## 图标
 

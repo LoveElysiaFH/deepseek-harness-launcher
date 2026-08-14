@@ -28,6 +28,7 @@ export const DEFAULTS = Object.freeze({
     url: null,
     timeoutSec: 90,
     openBrowser: true,
+    restartOnRerun: false,
   },
 });
 
@@ -90,6 +91,7 @@ export function loadConfig(cli = {}) {
   if (cli.url !== undefined) h.url = cli.url;
   if (cli.timeout !== undefined) h.timeoutSec = cli.timeout;
   if (cli.noBrowser) h.openBrowser = false;
+  if (cli.restart) h.restartOnRerun = true;
   if (cli.cwd !== undefined) h.cwd = cli.cwd || null;
   if (cli.command !== undefined) h.command = cli.command || null;
 

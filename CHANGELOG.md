@@ -2,6 +2,15 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)。格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)。
 
+## [1.2.0] - 2025-08-14
+
+### 新增
+- 可选「重启模式」：配置 `harness.restartOnRerun=true` 或加 `--restart` 后，
+  重新启动（含双击桌面图标）会先停掉旧的 `dsh web` 再重新启动。
+  - 默认关闭，保持原有「只打开浏览器」行为
+  - 只重启由本启动器启动的实例（有 pid 文件）；手动启动的实例会被跳过以保证安全
+- 文档：功能列表、配置表、开启方法与风险提示（README 中英文）
+
 ## [1.1.1] - 2025-08-14
 
 ### 修复

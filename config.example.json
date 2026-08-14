@@ -7,6 +7,7 @@
     "port": 3080,
     "url": null,
     "timeoutSec": 90,
-    "openBrowser": true
+    "openBrowser": true,
+    "restartOnRerun": false
   }
 }

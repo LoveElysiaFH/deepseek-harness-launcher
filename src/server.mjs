@@ -63,6 +63,18 @@ export function isPidAlive(pid) {
   }
 }
 
+/**
+ * Decide what `start` should do when the web UI is already serving.
+ * `managed` means the running instance was started by this launcher (pid file).
+ * Returns `'restart'` (kill + respawn), `'open'` (just open the browser) or
+ * `'fresh'` (nothing is serving).
+ */
+export function planRestart({ serving: isServing, managed, restartOnRerun }) {
+  if (!isServing) return 'fresh';
+  if (restartOnRerun && managed) return 'restart';
+  return 'open';
+}
+
 function killPid(pid) {
   if (WINDOWS()) {
     spawnSync('taskkill', ['/PID', String(pid), '/T', '/F'], {
@@ -104,9 +116,30 @@ export async function start(cfg, runner, t, log = console.log) {
   const parsed = new URL(url);
 
   if (await serving(url)) {
-    log(t('server.already', { url }));
-    if (cfg.harness.openBrowser) openBrowser(url, t, log);
-    return { alreadyRunning: true };
+    const pid = readPid();
+    const managed = pid !== null && isPidAlive(pid);
+    const action = planRestart({
+      serving: true,
+      managed,
+      restartOnRerun: cfg.harness.restartOnRerun,
+    });
+    if (action === 'restart') {
+      log(t('server.restarting', { url, pid }));
+      killPid(pid);
+      fs.rmSync(PID_FILE, { force: true });
+      // Wait for the port to actually free up before respawning.
+      const freeDeadline = Date.now() + 15000;
+      while (await portOpen(parsed.hostname, Number(parsed.port)) && Date.now() < freeDeadline) {
+        await sleep(300);
+      }
+      // Fall through to spawn a fresh instance below.
+    } else {
+      log(cfg.harness.restartOnRerun
+        ? t('server.restartSkipped', { url })
+        : t('server.already', { url }));
+      if (cfg.harness.openBrowser) openBrowser(url, t, log);
+      return { alreadyRunning: true };
+    }
   }
   if (await portOpen(parsed.hostname, Number(parsed.port))) {
     throw new Error(t('server.portBusy', { port: parsed.port }));

@@ -17,7 +17,7 @@ const VERSION = JSON.parse(
 ).version;
 
 const VALUE_FLAGS = new Set(['--port', '--url', '--timeout', '--cwd', '--command', '--lang']);
-const BOOL_FLAGS = new Set(['--no-browser', '--force', '--json']);
+const BOOL_FLAGS = new Set(['--no-browser', '--restart', '--force', '--json']);
 
 function parseArgs(argv) {
   const opts = { lang: 'auto' };
@@ -70,6 +70,7 @@ async function cmdStart(opts, t) {
     url: opts.url,
     timeout: toNumber(opts.timeout),
     noBrowser: opts.noBrowser,
+    restart: opts.restart,
     cwd: opts.cwd,
     command: opts.command,
   });
