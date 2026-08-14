@@ -59,6 +59,24 @@ node bin\launcher.mjs stop     # 停止由本启动器启动的实例
 node bin\launcher.mjs status   # 查看运行状态
 ```
 
+## 如何关闭 DeepSeek Harness
+
+启动器把 `dsh web` 放在**后台运行（没有窗口）**，所以关它要用命令，而不是关窗口：
+
+```sh
+node bin\launcher.mjs stop
+```
+
+- **所有平台**都可用上面的命令；
+- **Windows** 也可以直接双击启动器目录里的 `stop.cmd`。
+
+> 注意几点：
+> - `stop` 只会关闭**由本启动器启动**的实例，不会误杀其他程序。
+> - 如果你是手动在终端里跑 `npx @deepseek-ai/dsh web` 或 `pnpm dsh web` 开起来的，
+>   请回到那个终端按 `Ctrl+C` 或直接关掉终端窗口；启动器管不到它。
+> - 双击桌面快捷方式只负责「启动」，不会关闭；除非你开启了[重启模式](#重启模式)，
+>   那时它才会「先关旧的再开新的」。
+
 ## 前提条件
 
 | 项目 | 要求 |
@@ -260,7 +278,7 @@ deepseek-harness-launcher/
 重新运行 `node bin\launcher.mjs install --force`（快捷方式记录的是安装时的绝对路径）。
 
 **如何停止？**
-所有平台统一 `node bin\launcher.mjs stop`；Windows 也可直接双击 `stop.cmd`。只会停止本启动器启动的实例。
+见上文「如何关闭 DeepSeek Harness」：`node bin\launcher.mjs stop`（所有平台），Windows 也可双击 `stop.cmd`。只会停止本启动器启动的实例。
 
 **各平台快捷方式装在哪？**
 见上文「快速开始 → 按平台安装桌面快捷方式」表格：Windows 是桌面 `.lnk`，macOS 是

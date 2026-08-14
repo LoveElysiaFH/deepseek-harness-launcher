@@ -59,6 +59,25 @@ node bin\launcher.mjs stop     # stop the instance started by this launcher
 node bin\launcher.mjs status   # show the running state
 ```
 
+## How to stop DeepSeek Harness
+
+The launcher runs `dsh web` in the **background (no window)**, so you stop it with a
+command rather than closing a window:
+
+```sh
+node bin\launcher.mjs stop
+```
+
+- Works on **every platform**;
+- On **Windows** you can also double-click `stop.cmd` in the launcher folder.
+
+> Notes:
+> - `stop` only stops the instance **started by this launcher**; it never kills other programs.
+> - If you started the harness manually (`npx @deepseek-ai/dsh web` or `pnpm dsh web` in a
+>   terminal), go back to that terminal and press `Ctrl+C` (or close it); the launcher won't touch it.
+> - Double-clicking the desktop shortcut only *starts*; it does not stop — unless you enabled
+>   [restart mode](#restart-mode), in which case it stops the old one before starting a new one.
+
 ## Prerequisites
 
 | Item | Requirement |
@@ -264,8 +283,8 @@ Confirm `npx @deepseek-ai/dsh web` works. For a non-standard location, see
 Re-run `node bin\launcher.mjs install --force` (the shortcut records absolute paths).
 
 **How do I stop it?**
-`node bin\launcher.mjs stop` on every platform; on Windows you can also double-click
-`stop.cmd`. Only launcher-started instances are stopped.
+See “How to stop DeepSeek Harness” above: `node bin\launcher.mjs stop` on every platform;
+on Windows you can also double-click `stop.cmd`. Only launcher-started instances are stopped.
 
 **Where does each platform put its shortcut?**
 See the “Install the desktop shortcut for your platform” table above: Windows = Desktop
