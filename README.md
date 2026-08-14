@@ -20,26 +20,42 @@ English: [README.en.md](README.en.md)
 
 ## 快速开始
 
-### 方式一：下载 Release（推荐）
+### 1. 获取启动器
 
-1. 在 [Releases](https://github.com/LoveElysiaFH/deepseek-harness-launcher/releases) 下载
-   `deepseek-harness-launcher-v<版本>.zip` 并解压到任意目录（建议固定位置，如 `D:\tools\deepseek-harness-launcher`）。
-2. 打开终端（PowerShell / CMD），进入解压目录，安装桌面快捷方式：
-
-   ```powershell
-   node bin\launcher.mjs install
-   ```
-
-3. 双击桌面上的 **“DeepSeek Harness”**（黑色小鲸鱼图标）——harness 自动启动，浏览器自动打开。
-
-> 首次使用建议先运行 `node bin\launcher.mjs doctor` 做一次环境诊断。
-
-### 方式二：从源码运行
+从 [Releases](https://github.com/LoveElysiaFH/deepseek-harness-launcher/releases) 下载
+`deepseek-harness-launcher-v<版本>.zip`，解压到固定目录（例如 `~/tools/deepseek-harness-launcher`）；
+或直接从源码 clone：
 
 ```sh
 git clone https://github.com/LoveElysiaFH/deepseek-harness-launcher.git
 cd deepseek-harness-launcher
+```
+
+### 2. 按平台安装桌面快捷方式
+
+进入启动器目录，三平台都是同一个命令：
+
+```sh
 node bin\launcher.mjs install
+```
+
+各平台生成的快捷方式不同：
+
+| 平台 | 生成结果 | 用法 |
+| --- | --- | --- |
+| **Windows** | 桌面 `DeepSeek Harness.lnk`（黑色小鲸鱼 `.ico`，wscript 静默启动、无控制台闪烁） | 双击桌面图标 |
+| **macOS** | `~/Applications/DeepSeek Harness.app`（黑色小鲸鱼 `.icns`，LSUIElement 无 Dock 残留）+ 桌面快捷方式 | 双击 `.app` 或桌面图标 |
+| **Linux** | 桌面与 `~/.local/share/applications` 的 `.desktop` 入口 + hicolor 图标 | 应用菜单或桌面启动 |
+
+> 首次使用建议先运行 `node bin\launcher.mjs doctor` 做一次环境诊断。
+> 移动过启动器目录后，重新 `node bin\launcher.mjs install --force` 即可。
+
+### 3. 或直接用命令行（三平台通用）
+
+```sh
+node bin\launcher.mjs start    # 启动（或复用）dsh web，并自动打开浏览器
+node bin\launcher.mjs stop     # 停止由本启动器启动的实例
+node bin\launcher.mjs status   # 查看运行状态
 ```
 
 ## 前提条件
@@ -51,9 +67,11 @@ node bin\launcher.mjs install
 
 ## 工作原理
 
+双击桌面快捷方式后，三平台殊途同归——最终都执行 `node bin\launcher.mjs start`：
+
 ```
 双击桌面快捷方式
-  └─ start-silent.vbs（静默，无控制台窗口）
+  └─ Windows: start-silent.vbs / macOS: .app / Linux: .desktop
       └─ node bin\launcher.mjs start
           ├─ 检测 harness（见下方检测顺序）
           ├─ 端口已在服务？ ──是──▶ 直接打开浏览器，结束
@@ -67,7 +85,7 @@ harness 检测顺序（可用 `doctor` 查看结果）：
 
 1. 配置/命令行指定的 `harness.command`
 2. PATH 上的 `dsh` 命令
-3. 源码 checkout（沿启动器所在目录向上 4 级、`~` 目录中搜索 `deepseek-harness*`）：
+3. 源码 checkout（沿启动器所在目录向上 6 级、`~` 目录中搜索 `deepseek-harness*`）：
    优先直接运行构建产物 `apps/cli/lib/bin.js`，其次 `pnpm dsh web`，再其次 `npx dsh web`
 
 ## 命令参考
@@ -177,7 +195,7 @@ deepseek-harness-launcher/
 │   └── build.mjs             Release 构建
 ├── test/                     node --test 单元测试
 ├── .github/workflows/        CI（多系统多 Node 版本）+ 自动 Release
-└── start.cmd / stop.cmd      可见控制台的调试用入口
+└── start.cmd / stop.cmd      可见控制台的调试用入口（仅 Windows）
 ```
 
 ## 常见问题
@@ -196,12 +214,12 @@ deepseek-harness-launcher/
 重新运行 `node bin\launcher.mjs install --force`（快捷方式记录的是安装时的绝对路径）。
 
 **如何停止？**
-`node bin\launcher.mjs stop`，或直接运行 `stop.cmd`。只会停止本启动器启动的实例。
+所有平台统一 `node bin\launcher.mjs stop`；Windows 也可直接双击 `stop.cmd`。只会停止本启动器启动的实例。
 
-**macOS 呢？**
-完全支持。运行 `node bin\launcher.mjs install` 会在 `~/Applications/DeepSeek Harness.app`
-生成一个最小化应用（黑色小鲸鱼图标、LSUIElement 不残留 Dock 图标），并在桌面放一个
-快捷方式，双击即启动 harness 并打开浏览器。卸载用 `node bin\launcher.mjs uninstall`。
+**各平台快捷方式装在哪？**
+见上文「快速开始 → 按平台安装桌面快捷方式」表格：Windows 是桌面 `.lnk`，macOS 是
+`~/Applications/DeepSeek Harness.app` + 桌面快捷方式，Linux 是 `.desktop` 入口。
+卸载均用 `node bin\launcher.mjs uninstall`。
 
 ## 维护与贡献
 

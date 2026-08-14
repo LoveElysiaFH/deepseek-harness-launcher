@@ -20,28 +20,42 @@ Zero runtime dependencies (plain Node.js ≥ 18.17), bilingual (zh/en) output, W
 
 ## Quick start
 
-### From a release (recommended)
+### 1. Get the launcher
 
-1. Download `deepseek-harness-launcher-v<version>.zip` from
-   [Releases](https://github.com/LoveElysiaFH/deepseek-harness-launcher/releases)
-   and unzip it somewhere permanent (e.g. `D:\tools\deepseek-harness-launcher`).
-2. Install the desktop shortcut:
-
-   ```powershell
-   node bin\launcher.mjs install
-   ```
-
-3. Double-click **“DeepSeek Harness”** on the Desktop (black whale icon) —
-   the harness starts and the browser opens automatically.
-
-> Run `node bin\launcher.mjs doctor` once to check your environment.
-
-### From source
+Download `deepseek-harness-launcher-v<version>.zip` from
+[Releases](https://github.com/LoveElysiaFH/deepseek-harness-launcher/releases)
+and unzip it somewhere permanent (e.g. `~/tools/deepseek-harness-launcher`), or clone from source:
 
 ```sh
 git clone https://github.com/LoveElysiaFH/deepseek-harness-launcher.git
 cd deepseek-harness-launcher
+```
+
+### 2. Install the desktop shortcut for your platform
+
+Inside the launcher directory, the command is the same on every platform:
+
+```sh
 node bin\launcher.mjs install
+```
+
+What it creates differs per platform:
+
+| Platform | Result | How to use |
+| --- | --- | --- |
+| **Windows** | Desktop `DeepSeek Harness.lnk` (black whale `.ico`, silent wscript launch, no console flash) | Double-click the desktop icon |
+| **macOS** | `~/Applications/DeepSeek Harness.app` (black whale `.icns`, `LSUIElement` so no Dock icon lingers) + a Desktop link | Double-click the `.app` or Desktop icon |
+| **Linux** | `.desktop` entry on the Desktop and in `~/.local/share/applications` + hicolor icon | Launch from the app menu or Desktop |
+
+> Run `node bin\launcher.mjs doctor` once to check your environment.
+> After moving the launcher folder, re-run `node bin\launcher.mjs install --force`.
+
+### 3. Or just use the CLI (all platforms)
+
+```sh
+node bin\launcher.mjs start    # start (or reuse) dsh web and open the browser
+node bin\launcher.mjs stop     # stop the instance started by this launcher
+node bin\launcher.mjs status   # show the running state
 ```
 
 ## Prerequisites
@@ -53,9 +67,12 @@ node bin\launcher.mjs install
 
 ## How it works
 
+On every platform, double-clicking the shortcut funnels into the same command,
+`node bin\launcher.mjs start`:
+
 ```
 double-click desktop shortcut
-  └─ start-silent.vbs (silent, no console window)
+  └─ Windows: start-silent.vbs / macOS: .app / Linux: .desktop
       └─ node bin\launcher.mjs start
           ├─ detect harness (see order below)
           ├─ already serving? ──yes──▶ open browser, done
@@ -69,7 +86,7 @@ Detection order (check with `doctor`):
 
 1. `harness.command` from config / `--command`
 2. `dsh` on PATH
-3. a source checkout (searched in `~` and up to 4 levels above the launcher):
+3. a source checkout (searched in `~` and up to 6 levels above the launcher):
    prefers the built entry `apps/cli/lib/bin.js`, then `pnpm dsh web`, then `npx dsh web`
 
 ## Command reference
@@ -178,7 +195,7 @@ deepseek-harness-launcher/
 │   └── build.mjs             release build
 ├── test/                     node --test unit tests
 ├── .github/workflows/        CI (multi-OS, multi-Node) + automated Release
-└── start.cmd / stop.cmd      visible-console debugging entry points
+└── start.cmd / stop.cmd      visible-console debugging entry points (Windows only)
 ```
 
 ## FAQ
@@ -197,13 +214,13 @@ Confirm `npx @deepseek-ai/dsh web` works. For a non-standard location:
 Re-run `node bin\launcher.mjs install --force` (the shortcut records absolute paths).
 
 **How do I stop it?**
-`node bin\launcher.mjs stop`, or run `stop.cmd`. Only launcher-started instances are stopped.
+`node bin\launcher.mjs stop` on every platform; on Windows you can also double-click
+`stop.cmd`. Only launcher-started instances are stopped.
 
-**macOS?**
-Fully supported. `node bin\launcher.mjs install` builds a minimal
-`~/Applications/DeepSeek Harness.app` (black whale icon, `LSUIElement` so no Dock icon
-lingers) and links it on the Desktop — double-click to start the harness and open the
-browser. Uninstall with `node bin\launcher.mjs uninstall`.
+**Where does each platform put its shortcut?**
+See the “Install the desktop shortcut for your platform” table above: Windows = Desktop
+`.lnk`, macOS = `~/Applications/DeepSeek Harness.app` + Desktop link, Linux = `.desktop`
+entry. Uninstall on any platform with `node bin\launcher.mjs uninstall`.
 
 ## Maintaining & contributing
 
