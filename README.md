@@ -65,6 +65,20 @@ node bin\launcher.mjs status   # 查看运行状态
 | Node.js | ≥ 18.17（运行 `node --version` 检查） |
 | DeepSeek Harness | 已安装且可用，二选一：<br>• npm 方式：`npx @deepseek-ai/dsh web` 能启动<br>• 源码方式：`git clone https://github.com/deepseek-ai/deepseek-harness.git` 后 `pnpm install && pnpm run build` |
 
+> ## ⚠️ 检测不到 harness？手动指定目录
+>
+> 启动器按顺序查找：① PATH 上的 `dsh` 命令 → ② 常见位置的 `deepseek-harness*` 源码目录
+> （`~` 目录、以及启动器所在位置向上 6 级目录内）。若运行 `doctor` 看到
+> **「harness 源码目录 未找到」**，把 harness 所在目录告诉它即可——**任意目录都行**：
+>
+> ```sh
+> node bin\launcher.mjs config set harness.cwd "D:/你的路径/deepseek-harness"   # 永久生效（写入配置）
+> node bin\launcher.mjs start --cwd "D:/你的路径/deepseek-harness"              # 仅本次生效
+> ```
+>
+> 也可用环境变量 `DSH_LAUNCHER_HARNESS`（Windows `set`、macOS/Linux `export`）。
+> 指定后运行 `node bin\launcher.mjs doctor` 验证，应显示你填的路径。
+
 ## 工作原理
 
 双击桌面快捷方式后，三平台殊途同归——最终都执行 `node bin\launcher.mjs start`：
@@ -207,8 +221,8 @@ deepseek-harness-launcher/
 其他程序占用了端口：`start --port 3099` 换端口（会同步传给 `dsh web --port`）。
 
 **提示找不到 harness？**
-先确认 `npx @deepseek-ai/dsh web` 可运行；若 harness 在非标准位置：
-`node bin\launcher.mjs config set harness.cwd "D:/path/to/deepseek-harness"`。
+先确认 `npx @deepseek-ai/dsh web` 可运行；若 harness 在非标准位置，按上文
+「⚠️ 检测不到 harness？手动指定目录」用 `harness.cwd` / `--cwd` / `DSH_LAUNCHER_HARNESS` 指定即可。
 
 **移动了启动器目录后快捷方式失效？**
 重新运行 `node bin\launcher.mjs install --force`（快捷方式记录的是安装时的绝对路径）。

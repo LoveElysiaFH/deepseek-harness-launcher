@@ -65,6 +65,20 @@ node bin\launcher.mjs status   # show the running state
 | Node.js | ≥ 18.17 (`node --version`) |
 | DeepSeek Harness | installed and working, either:<br>• npm: `npx @deepseek-ai/dsh web` starts<br>• source: `git clone https://github.com/deepseek-ai/deepseek-harness.git` then `pnpm install && pnpm run build` |
 
+> ## ⚠️ Can't find the harness? Point it at the directory
+>
+> The launcher looks in order: ① `dsh` on PATH → ② a `deepseek-harness*` source checkout
+> in common places (`~` and up to 6 levels above the launcher). If `doctor` reports
+> **“harness checkout not found”**, tell it where the harness lives — **any directory works**:
+>
+> ```sh
+> node bin\launcher.mjs config set harness.cwd "D:/your/path/deepseek-harness"   # permanent (config)
+> node bin\launcher.mjs start --cwd "D:/your/path/deepseek-harness"              # one-off
+> ```
+>
+> Or set the `DSH_LAUNCHER_HARNESS` environment variable (`set` on Windows, `export` on macOS/Linux).
+> Verify with `node bin\launcher.mjs doctor` — it should show the path you gave.
+
 ## How it works
 
 On every platform, double-clicking the shortcut funnels into the same command,
@@ -207,8 +221,9 @@ Run `node bin\launcher.mjs doctor`; logs live in `~/.dsh-launcher/run/web.log`.
 Something else owns the port: use `start --port 3099` (forwarded to `dsh web --port`).
 
 **Harness not found?**
-Confirm `npx @deepseek-ai/dsh web` works. For a non-standard location:
-`node bin\launcher.mjs config set harness.cwd "D:/path/to/deepseek-harness"`.
+Confirm `npx @deepseek-ai/dsh web` works. For a non-standard location, see
+“⚠️ Can't find the harness? Point it at the directory” above and use
+`harness.cwd` / `--cwd` / `DSH_LAUNCHER_HARNESS`.
 
 **Moved the launcher folder and the shortcut broke?**
 Re-run `node bin\launcher.mjs install --force` (the shortcut records absolute paths).
