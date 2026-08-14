@@ -214,6 +214,11 @@ deepseek-harness-launcher/
 
 ## 常见问题
 
+**双击弹出「DeepSeek Harness failed to start」？**
+弹窗里的 **Reason** 就是真实原因。退出码 `1` 常见于：harness 源码未构建
+（先 `pnpm install && pnpm run build`）、端口被占、或 `harness.cwd` 指向无效目录；
+详情见 `~/.dsh-launcher/run/web.log`。
+
 **双击快捷方式没有反应？**
 运行 `node bin\launcher.mjs doctor` 检查 node 与 harness 是否就位；日志在 `~/.dsh-launcher/run/web.log`。
 

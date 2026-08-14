@@ -2,6 +2,13 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)。格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)。
 
+## [1.1.1] - 2025-08-14
+
+### 修复
+- Windows 静默启动失败时，弹窗现在会显示**真实原因**（此前只显示退出码，
+  真正的报错被隐藏）：启动器把致命错误写入 `~/.dsh-launcher/run/last-error.log`，
+  `start-silent.vbs` 失败时将其读入弹窗，并附上 web.log 路径。
+
 ## [1.1.0] - 2025-08-14
 
 ### 新增

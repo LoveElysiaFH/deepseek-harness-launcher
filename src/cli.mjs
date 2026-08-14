@@ -8,7 +8,7 @@ import fs from 'node:fs';
 import { coerceValue, getByPath, loadConfig, readConfigFile, saveConfigFile, setByPath } from './config.mjs';
 import { findCheckout, findOnPath, resolveRunner } from './detect.mjs';
 import { makeT } from './i18n.mjs';
-import { CONFIG_FILE, launcherRoot, LAUNCHER_HOME } from './paths.mjs';
+import { CONFIG_FILE, ensureRunDir, LAST_ERROR_FILE, launcherRoot, LAUNCHER_HOME } from './paths.mjs';
 import * as server from './server.mjs';
 import { installShortcut, shortcutExists, shortcutPath, uninstallShortcut } from './shortcut.mjs';
 
@@ -197,6 +197,15 @@ function cmdConfig(positionals, opts, t) {
 // ---------------------------------------------------------------------------
 
 export async function main(argv) {
+  // Persist the last fatal error so the silent Windows launcher can show the
+  // real reason in its message box (its console output is hidden).
+  try {
+    ensureRunDir();
+    fs.rmSync(LAST_ERROR_FILE, { force: true });
+  } catch {
+    /* best effort */
+  }
+
   let parsed;
   try {
     parsed = parseArgs(argv);
@@ -239,7 +248,16 @@ export async function main(argv) {
         return parsed.command === 'help' ? 0 : 2;
     }
   } catch (err) {
-    console.error(err.message ?? String(err));
+    const message = err.message ?? String(err);
+    console.error(message);
+    try {
+      ensureRunDir();
+      // UTF-16LE + BOM so the VBS silent launcher reads it natively (UTF-8
+      // would be misread as the system ANSI codepage on non-ASCII Windows).
+      fs.writeFileSync(LAST_ERROR_FILE, `\ufeff${message}\n`, 'utf16le');
+    } catch {
+      /* best effort */
+    }
     return err.exitCode ?? 1;
   }
 }

@@ -214,6 +214,12 @@ deepseek-harness-launcher/
 
 ## FAQ
 
+**“DeepSeek Harness failed to start” pops up?**
+The **Reason** in the dialog is the actual cause. Exit code `1` usually means: the
+harness source isn't built (run `pnpm install && pnpm run build` first), the port is
+taken, or `harness.cwd` points at an invalid directory. Details in
+`~/.dsh-launcher/run/web.log`.
+
 **Double-clicking does nothing?**
 Run `node bin\launcher.mjs doctor`; logs live in `~/.dsh-launcher/run/web.log`.
 

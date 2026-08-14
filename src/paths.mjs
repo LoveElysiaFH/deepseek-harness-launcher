@@ -18,6 +18,7 @@ export const LAUNCHER_HOME = process.env.DSH_LAUNCHER_HOME
 export const RUN_DIR = path.join(LAUNCHER_HOME, 'run');
 export const PID_FILE = path.join(RUN_DIR, 'web.pid');
 export const LOG_FILE = path.join(RUN_DIR, 'web.log');
+export const LAST_ERROR_FILE = path.join(RUN_DIR, 'last-error.log');
 export const CONFIG_FILE = path.join(LAUNCHER_HOME, 'config.json');
 
 /** Directory containing this launcher installation (repo root or ZIP root). */
