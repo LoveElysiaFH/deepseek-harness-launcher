@@ -198,38 +198,6 @@ Environment variables: `DSH_LAUNCHER_HARNESS`, `DSH_LAUNCHER_PORT`, `DSH_LAUNCHE
   the frames into `assets/whale-black.icns` (the macOS `.app` icon).
 - The whale mark belongs to DeepSeek; this project uses it only for the local shortcut.
 
-## Build & release
-
-```sh
-npm test        # unit tests (node --test, no install step needed)
-npm run build   # dist/deepseek-harness-launcher-v<version>.zip + .sha256
-```
-
-`npm run build` produces a GitHub-Ready ZIP (with `bin/`, `src/`, `assets/`, `start.cmd`, `stop.cmd`, docs and config template).
-
-### Uploading to GitHub
-
-First time:
-
-```sh
-cd deepseek-harness-launcher
-git init
-git add .
-git commit -m "Initial release: dsh web launcher with black whale desktop icon"
-git remote add origin https://github.com/LoveElysiaFH/deepseek-harness-launcher.git
-git branch -M main
-git push -u origin main
-```
-
-Every release after that, just tag (CI builds and publishes the Release):
-
-```sh
-git tag v1.0.0
-git push origin v1.0.0
-```
-
-Manual release: run `npm run build` and upload the `.zip` and `.sha256` from `dist/` on the GitHub Release page.
-
 ## Project layout
 
 ```

@@ -196,39 +196,6 @@ node bin\launcher.mjs config set harness.timeoutSec 120
   `assets/whale-black.icns`（macOS `.app` 图标），全部由零依赖脚本完成，CI 亦可复现。
 - 小鲸鱼图案版权归 DeepSeek 所有，本项目仅将其用于本地快捷方式。
 
-## 构建与发布
-
-```sh
-npm test        # 单元测试（node --test，无需安装依赖）
-npm run build   # 生成 dist/deepseek-harness-launcher-v<版本>.zip + .sha256
-```
-
-`npm run build` 产出可直接上传 GitHub Release 的 ZIP（含 `bin/`、`src/`、`assets/`、`start.cmd`、`stop.cmd`、文档与配置模板）。
-
-### 上传到 GitHub
-
-首次：
-
-```sh
-cd deepseek-harness-launcher
-git init
-git add .
-git commit -m "Initial release: dsh web launcher with black whale desktop icon"
-git remote add origin https://github.com/LoveElysiaFH/deepseek-harness-launcher.git
-git branch -M main
-git push -u origin main
-```
-
-之后每次发布，打 tag 即可（CI 自动构建并发布 Release）：
-
-```sh
-git tag v1.0.0
-git push origin v1.0.0
-```
-
-手动发布：运行 `npm run build`，把 `dist/` 下的 `.zip` 和 `.sha256` 上传到
-GitHub Release 页面即可。
-
 ## 项目结构
 
 ```
