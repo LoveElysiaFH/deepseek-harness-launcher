@@ -1,0 +1,212 @@
+<p align="center">
+  <img src="assets/whale-black.png" width="128" height="128" alt="DeepSeek Harness 黑色小鲸鱼图标">
+</p>
+
+# DeepSeek Harness Launcher
+
+一键启动 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)（`dsh`）Web 界面的启动器。
+
+在**已安装 DeepSeek Harness** 的前提下，它负责：
+
+- 🔍 自动找到你机器上的 harness（PATH 上的 `dsh` 命令，或源码 checkout 目录）
+- 🚀 自动启动 `dsh web`（已在运行就直接打开，绝不重复启动）
+- 🌐 等待 Web 界面就绪后**自动打开浏览器**（默认 `http://127.0.0.1:3080`）
+- 🐳 创建桌面快捷方式 **“DeepSeek Harness”**，图标是**黑色小鲸鱼**
+- 🪵 完整日志落盘（`~/.dsh-launcher/run/web.log`），双击桌面图标静默启动、失败弹窗提示
+
+零运行时依赖（纯 Node.js，≥ 18.17），中英双语提示，Windows / Linux / macOS 均可运行。
+English: [README.en.md](README.en.md)
+
+## 快速开始
+
+### 方式一：下载 Release（推荐）
+
+1. 在 [Releases](https://github.com/LoveElysiaFH/deepseek-harness-launcher/releases) 下载
+   `deepseek-harness-launcher-v<版本>.zip` 并解压到任意目录（建议固定位置，如 `D:\tools\deepseek-harness-launcher`）。
+2. 打开终端（PowerShell / CMD），进入解压目录，安装桌面快捷方式：
+
+   ```powershell
+   node bin\launcher.mjs install
+   ```
+
+3. 双击桌面上的 **“DeepSeek Harness”**（黑色小鲸鱼图标）——harness 自动启动，浏览器自动打开。
+
+> 首次使用建议先运行 `node bin\launcher.mjs doctor` 做一次环境诊断。
+
+### 方式二：从源码运行
+
+```sh
+git clone https://github.com/LoveElysiaFH/deepseek-harness-launcher.git
+cd deepseek-harness-launcher
+node bin\launcher.mjs install
+```
+
+## 前提条件
+
+| 项目 | 要求 |
+| --- | --- |
+| Node.js | ≥ 18.17（运行 `node --version` 检查） |
+| DeepSeek Harness | 已安装且可用，二选一：<br>• npm 方式：`npx @deepseek-ai/dsh web` 能启动<br>• 源码方式：`git clone https://github.com/deepseek-ai/deepseek-harness.git` 后 `pnpm install && pnpm run build` |
+
+## 工作原理
+
+```
+双击桌面快捷方式
+  └─ start-silent.vbs（静默，无控制台窗口）
+      └─ node bin\launcher.mjs start
+          ├─ 检测 harness（见下方检测顺序）
+          ├─ 端口已在服务？ ──是──▶ 直接打开浏览器，结束
+          ├─ 端口被其他程序占用？ ──▶ 报错并提示换端口
+          └─ 后台启动 dsh web（输出写入 ~/.dsh-launcher/run/web.log）
+              └─ 每 0.5 秒探测直到就绪（默认最多 90 秒）
+                  └─ 打开默认浏览器
+```
+
+harness 检测顺序（可用 `doctor` 查看结果）：
+
+1. 配置/命令行指定的 `harness.command`
+2. PATH 上的 `dsh` 命令
+3. 源码 checkout（沿启动器所在目录向上 4 级、`~` 目录中搜索 `deepseek-harness*`）：
+   优先直接运行构建产物 `apps/cli/lib/bin.js`，其次 `pnpm dsh web`，再其次 `npx dsh web`
+
+## 命令参考
+
+| 命令 | 说明 |
+| --- | --- |
+| `start` | 启动（或复用）`dsh web` 并打开浏览器 |
+| `stop` | 停止由本启动器启动的实例（只认自己的 pid 文件，不会误杀手动启动的 harness） |
+| `status` | 运行状态；加 `--json` 输出机器可读格式 |
+| `install` | 创建桌面快捷方式（黑色小鲸鱼图标）；`--force` 覆盖已有快捷方式 |
+| `uninstall` | 删除桌面快捷方式 |
+| `doctor` | 环境诊断：node / dsh / checkout / 端口 / 快捷方式 / 图标 |
+| `config` | 查看配置；`config get/set/reset <harness.键>` 管理配置 |
+| `version` | 版本号 |
+| `help` | 完整帮助 |
+
+常用选项：`--port <n>`、`--url <url>`、`--timeout <秒>`、`--no-browser`、`--cwd <dir>`、`--command <cmd>`、`--lang zh|en`。
+
+示例：
+
+```sh
+node bin\launcher.mjs start --port 3099 --no-browser   # 备用端口启动，不开浏览器
+node bin\launcher.mjs status --json                    # 供脚本/监控使用
+node bin\launcher.mjs config set harness.cwd "D:/ai/deepseek-harness"
+node bin\launcher.mjs config set harness.timeoutSec 120
+```
+
+## 配置
+
+配置文件：`~/.dsh-launcher/config.json`（模板见 [config.example.json](config.example.json)）。
+优先级：**命令行 > 环境变量 > 配置文件 > 默认值**。
+
+| 键 | 默认 | 说明 |
+| --- | --- | --- |
+| `harness.command` | `null` | 显式启动命令（字符串或数组），设置后跳过自动检测 |
+| `harness.cwd` | `null` | 源码 checkout 目录提示 |
+| `harness.env` | `{}` | 传给 dsh 进程的额外环境变量 |
+| `harness.args` | `["web"]` | 追加到自动检测出的 dsh 命令后的参数 |
+| `harness.port` | `3080` | Web 端口（非 3080 时自动附加 `--port` 给 dsh） |
+| `harness.url` | `null` | Web 地址（null = `http://127.0.0.1:<port>`） |
+| `harness.timeoutSec` | `90` | 启动等待超时 |
+| `harness.openBrowser` | `true` | 启动后是否打开浏览器 |
+
+环境变量：`DSH_LAUNCHER_HARNESS`、`DSH_LAUNCHER_PORT`、`DSH_LAUNCHER_URL`、`DSH_LAUNCHER_TIMEOUT`、`DSH_LAUNCHER_NO_BROWSER=1`、`DSH_LAUNCHER_LANG`、`DSH_LAUNCHER_HOME`。
+
+## 图标
+
+- **权威源**：`assets/deepseek-whale-black.ico` —— 黑色小鲸鱼，含 16/24/32/48/64/128/256px 七档。
+  想换图标：直接替换该文件（保持同名、含常用尺寸），然后运行 `npm run icon`。
+- `npm run icon` 会校验 ICO 并**无损提取** 256px 帧生成 `assets/whale-black.png`
+  （Linux 桌面入口与 README 预览使用），全部由零依赖脚本完成，CI 亦可复现。
+- 小鲸鱼图案版权归 DeepSeek 所有，本项目仅将其用于本地快捷方式。
+
+## 构建与发布
+
+```sh
+npm test        # 单元测试（node --test，无需安装依赖）
+npm run build   # 生成 dist/deepseek-harness-launcher-v<版本>.zip + .sha256
+```
+
+`npm run build` 产出可直接上传 GitHub Release 的 ZIP（含 `bin/`、`src/`、`assets/`、`start.cmd`、`stop.cmd`、文档与配置模板）。
+
+### 上传到 GitHub
+
+首次：
+
+```sh
+cd deepseek-harness-launcher
+git init
+git add .
+git commit -m "Initial release: dsh web launcher with black whale desktop icon"
+git remote add origin https://github.com/LoveElysiaFH/deepseek-harness-launcher.git
+git branch -M main
+git push -u origin main
+```
+
+之后每次发布，打 tag 即可（CI 自动构建并发布 Release）：
+
+```sh
+git tag v1.0.0
+git push origin v1.0.0
+```
+
+手动发布：运行 `npm run build`，把 `dist/` 下的 `.zip` 和 `.sha256` 上传到
+GitHub Release 页面即可。
+
+## 项目结构
+
+```
+deepseek-harness-launcher/
+├── bin/launcher.mjs          CLI 入口
+├── src/
+│   ├── cli.mjs               命令解析与分发
+│   ├── config.mjs            配置加载（文件 + 环境变量 + 命令行）
+│   ├── detect.mjs            harness 检测（PATH / checkout）
+│   ├── server.mjs            dsh web 的启动/停止/状态/浏览器
+│   ├── shortcut.mjs          桌面快捷方式（Windows .lnk / Linux .desktop）
+│   ├── paths.mjs             ~/.dsh-launcher 路径
+│   └── i18n.mjs              中英双语消息
+├── assets/
+│   ├── deepseek-whale-black.ico   权威图标（黑色小鲸鱼）
+│   └── whale-black.png            256px 提取帧（npm run icon 生成）
+├── scripts/
+│   ├── prepare-icons.mjs     ICO 校验 + PNG 提取
+│   ├── zip.mjs               零依赖 ZIP 打包器
+│   └── build.mjs             Release 构建
+├── test/                     node --test 单元测试
+├── .github/workflows/        CI（多系统多 Node 版本）+ 自动 Release
+└── start.cmd / stop.cmd      可见控制台的调试用入口
+```
+
+## 常见问题
+
+**双击快捷方式没有反应？**
+运行 `node bin\launcher.mjs doctor` 检查 node 与 harness 是否就位；日志在 `~/.dsh-launcher/run/web.log`。
+
+**提示“端口 3080 已被占用”？**
+其他程序占用了端口：`start --port 3099` 换端口（会同步传给 `dsh web --port`）。
+
+**提示找不到 harness？**
+先确认 `npx @deepseek-ai/dsh web` 可运行；若 harness 在非标准位置：
+`node bin\launcher.mjs config set harness.cwd "D:/path/to/deepseek-harness"`。
+
+**移动了启动器目录后快捷方式失效？**
+重新运行 `node bin\launcher.mjs install --force`（快捷方式记录的是安装时的绝对路径）。
+
+**如何停止？**
+`node bin\launcher.mjs stop`，或直接运行 `stop.cmd`。只会停止本启动器启动的实例。
+
+**macOS 呢？**
+核心功能（start/stop/status/doctor/config）全部可用；桌面快捷方式请将
+`bin/launcher.mjs` 拖入 Dock，或用 Automator 创建应用程序包裹它。
+
+## 维护与贡献
+
+- 零运行时依赖；测试零依赖（`node --test`），`npm test` 全绿即可放心合并
+- 版本号遵循语义化版本，变更记录在 [CHANGELOG.md](CHANGELOG.md)
+- CI 在 ubuntu/windows × node 20/22/24 六个组合上跑测试与构建
+- 欢迎提交 Issue / PR；修改图标流程见上文「图标」一节
+
+## License
+
+[MIT](LICENSE)。小鲸鱼图案版权归 DeepSeek 所有，仅用于本地快捷方式展示。

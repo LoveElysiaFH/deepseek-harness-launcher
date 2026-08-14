@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    name: test (${{ matrix.os }}, node ${{ matrix.node }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        node: ['20', '22', '24']
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Prepare icons
+        run: npm run icon
+      - name: Unit tests
+        run: npm test
+      - name: Release build
+        run: npm run build
+      - name: Upload release archive
+        uses: actions/upload-artifact@v4
+        with:
+          name: deepseek-harness-launcher-${{ matrix.os }}-node${{ matrix.node }}
+          path: |
+            dist/*.zip
+            dist/*.sha256
+          if-no-files-found: error

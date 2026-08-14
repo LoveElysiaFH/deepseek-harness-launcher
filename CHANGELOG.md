@@ -1,0 +1,27 @@
+# 更新日志
+
+本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)。格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)。
+
+## [1.0.0] - 2025-08-14
+
+### 新增
+- `dsh-launcher` 命令行工具（Node.js ≥ 18.17，零运行时依赖）：
+  - `start`：自动检测 DeepSeek Harness（PATH 上的 `dsh` 或源码 checkout），
+    必要时后台启动 `dsh web`，等待就绪后自动打开浏览器；
+    已在运行则直接打开浏览器，不重复启动
+  - `stop`：仅停止由本启动器启动的实例（pid 文件机制，不会误杀手动启动的实例）
+  - `status`：运行状态查询（支持 `--json` 机器可读输出）
+  - `doctor`：环境诊断（node / dsh / checkout / 端口 / 快捷方式 / 图标）
+  - `config`：`get/set/reset` 管理 `~/.dsh-launcher/config.json`
+  - `install` / `uninstall`：桌面快捷方式安装与卸载
+- Windows 桌面快捷方式「DeepSeek Harness」：
+  - 图标为黑色小鲸鱼（`assets/deepseek-whale-black.ico`，含 16–256px 七档尺寸）
+  - 静默启动（wscript + start-silent.vbs，无控制台窗口闪烁，失败弹窗提示日志位置）
+- Linux 支持：`.desktop` 桌面入口 + hicolor 图标（256px PNG）
+- 中英双语提示，按系统语言自动选择（`--lang` / `DSH_LAUNCHER_LANG` 可覆盖）
+- 零依赖构建管线：
+  - `scripts/prepare-icons.mjs`：校验 ICO 并从权威 ICO 无损提取 256px PNG
+  - `scripts/zip.mjs`：纯 Node 实现的 ZIP 打包器（store 模式，构建可复现）
+  - `scripts/build.mjs`：产出 `dist/deepseek-harness-launcher-v<版本>.zip` + SHA-256
+- CI（ubuntu/windows × node 20/22/24）与 tag 触发的 GitHub Release 自动化
+- `node --test` 单元测试：图标完整性、配置优先级、harness 检测、ZIP 结构

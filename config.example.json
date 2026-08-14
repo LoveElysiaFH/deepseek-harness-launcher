@@ -1,0 +1,12 @@
+{
+  "harness": {
+    "command": null,
+    "cwd": null,
+    "env": {},
+    "args": ["web"],
+    "port": 3080,
+    "url": null,
+    "timeoutSec": 90,
+    "openBrowser": true
+  }
+}

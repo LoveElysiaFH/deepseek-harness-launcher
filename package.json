@@ -1,0 +1,48 @@
+{
+  "name": "deepseek-harness-launcher",
+  "version": "1.0.0",
+  "description": "One-click launcher for the DeepSeek Harness (dsh) web UI: auto-start dsh web, auto-open the browser, and install a desktop shortcut with the black whale icon.",
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LoveElysiaFH/deepseek-harness-launcher.git"
+  },
+  "homepage": "https://github.com/LoveElysiaFH/deepseek-harness-launcher#readme",
+  "engines": {
+    "node": ">=18.17"
+  },
+  "bin": {
+    "dsh-launcher": "bin/launcher.mjs"
+  },
+  "files": [
+    "bin",
+    "src",
+    "assets",
+    "start.cmd",
+    "stop.cmd",
+    "config.example.json",
+    "README.md",
+    "README.en.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "start": "node bin/launcher.mjs start",
+    "stop": "node bin/launcher.mjs stop",
+    "status": "node bin/launcher.mjs status",
+    "doctor": "node bin/launcher.mjs doctor",
+    "shortcut:install": "node bin/launcher.mjs install",
+    "shortcut:uninstall": "node bin/launcher.mjs uninstall",
+    "icon": "node scripts/prepare-icons.mjs",
+    "build": "node scripts/build.mjs",
+    "test": "node --test"
+  },
+  "keywords": [
+    "deepseek",
+    "harness",
+    "dsh",
+    "launcher",
+    "whale"
+  ]
+}
