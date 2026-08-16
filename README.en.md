@@ -82,15 +82,31 @@ node bin\launcher.mjs stop
 ## Console mode (visible log window)
 
 By default the launcher runs dsh silently in the **background (no window)**. To watch the
-logs live, or to make “close the window = stop”, use console mode:
+logs live, or to make “close the window = stop”, use console mode. Three ways:
+
+**① Make the desktop shortcut console-based (recommended: double-click opens a console, closing it stops)**
+
+```sh
+node bin\launcher.mjs config set harness.console true   # enable console mode
+node bin\launcher.mjs install --force                  # rebuild the desktop shortcut
+```
+
+Now double-clicking the **“DeepSeek Harness”** desktop icon opens a console window with live
+dsh logs — **closing that window stops DeepSeek Harness**. To go back to the silent
+background shortcut, set it to `false` and run `install --force` again.
+
+**② One-off from the command line**
 
 ```sh
 node bin\launcher.mjs start --console
 ```
 
-- In a terminal, dsh's logs stream into that window; press `Ctrl+C` to stop.
-- **Windows double-click**: double-click `start-console.cmd` in the launcher folder to open a
-  console window with live logs — **closing that window stops DeepSeek Harness**.
+In a terminal, dsh's logs stream into that window; press `Ctrl+C` to stop.
+
+**③ Windows double-click `start-console.cmd`**
+
+Double-click `start-console.cmd` in the launcher folder to open a console window with live
+logs; closing it stops the harness.
 
 > Background vs console: in background mode closing the window does *not* stop it (use `stop`);
 > in console mode closing the window stops it.
@@ -224,6 +240,7 @@ Precedence: **CLI flags > environment variables > config file > defaults**.
 | `harness.timeoutSec` | `90` | Startup wait timeout |
 | `harness.openBrowser` | `true` | Open the browser after startup |
 | `harness.restartOnRerun` | `false` | When already running, stop the old instance and start fresh (restart mode) |
+| `harness.console` | `false` | Console mode: run dsh in a visible window via the shortcut / `start` (close the window to stop) |
 
 Environment variables: `DSH_LAUNCHER_HARNESS`, `DSH_LAUNCHER_PORT`, `DSH_LAUNCHER_URL`, `DSH_LAUNCHER_TIMEOUT`, `DSH_LAUNCHER_NO_BROWSER=1`, `DSH_LAUNCHER_LANG`, `DSH_LAUNCHER_HOME`.
 

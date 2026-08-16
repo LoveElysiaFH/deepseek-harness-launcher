@@ -81,15 +81,30 @@ node bin\launcher.mjs stop
 ## 控制台模式（显示日志窗口）
 
 默认启动器在**后台静默运行** dsh（无窗口）。想看实时日志、或想「关窗口即停止」，
-用控制台模式：
+用控制台模式。它有三种用法：
+
+**① 让桌面快捷方式变成控制台模式（推荐，双击弹控制台、关窗口即停）**
+
+```sh
+node bin\launcher.mjs config set harness.console true   # 开启控制台模式
+node bin\launcher.mjs install --force                  # 重建桌面快捷方式
+```
+
+之后双击桌面 **“DeepSeek Harness”** 图标，会弹出控制台窗口实时显示 dsh 日志；
+**关掉这个窗口，DeepSeek Harness 就会一起停止**。想改回后台静默，把 `true` 换成 `false`
+再 `install --force` 即可。
+
+**② 命令行单次**
 
 ```sh
 node bin\launcher.mjs start --console
 ```
 
-- 在终端里运行，dsh 日志会**实时显示**在当前窗口，按 `Ctrl+C` 即停止；
-- **Windows 双击**：双击启动器目录里的 `start-console.cmd`，会弹出一个控制台窗口实时显示
-  dsh 日志，**关掉这个窗口就停止 DeepSeek Harness**。
+在终端里运行，dsh 日志实时显示，`Ctrl+C` 停止。
+
+**③ Windows 双击 `start-console.cmd`**
+
+双击启动器目录里的 `start-console.cmd`，同样弹控制台窗口；关窗口即停。
 
 > 与后台模式的区别：后台模式关窗口不会停、要用 `stop`；控制台模式关窗口即停。
 
@@ -220,6 +235,7 @@ node bin\launcher.mjs config set harness.timeoutSec 120
 | `harness.timeoutSec` | `90` | 启动等待超时 |
 | `harness.openBrowser` | `true` | 启动后是否打开浏览器 |
 | `harness.restartOnRerun` | `false` | 已运行时，重新启动是否先停旧再启新（重启模式） |
+| `harness.console` | `false` | 控制台模式：桌面快捷方式/`start` 是否在可见窗口运行 dsh（关窗口即停） |
 
 环境变量：`DSH_LAUNCHER_HARNESS`、`DSH_LAUNCHER_PORT`、`DSH_LAUNCHER_URL`、`DSH_LAUNCHER_TIMEOUT`、`DSH_LAUNCHER_NO_BROWSER=1`、`DSH_LAUNCHER_LANG`、`DSH_LAUNCHER_HOME`。
 

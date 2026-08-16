@@ -126,21 +126,16 @@ function writeSilentLauncher() {
   return target;
 }
 
-function installWindows({ force, t, log }) {
-  const root = launcherRoot();
-  const iconPath = path.join(root, WINDOWS_ICON);
-  if (!fs.existsSync(iconPath)) throw new Error(t('doctor.iconNone'));
-
-  const vbs = writeSilentLauncher();
-  log(t('shortcut.vbsWritten', { path: vbs }));
-
-  if (!force && shortcutExists()) {
-    log(t('shortcut.already', { name: SHORTCUT_NAME }));
-    return { installed: false, exists: true };
-  }
-
-  log(t('shortcut.installing', { name: SHORTCUT_NAME }));
-  const script = [
+/**
+ * Build the VBS that creates the Windows shortcut.
+ * `consoleMode=true` targets cmd.exe + start-console.cmd (visible window);
+ * otherwise it targets wscript.exe + start-silent.vbs (silent background).
+ */
+export function buildWindowsShortcutScript({ root, iconPath, consoleMode }) {
+  const target = consoleMode
+    ? { exe: 'C:\\Windows\\System32\\cmd.exe', args: `/c ""${path.join(root, 'start-console.cmd')}""`, desc: 'Start DeepSeek Harness in a console window (close it to stop)' }
+    : { exe: 'C:\\Windows\\System32\\wscript.exe', args: null, desc: 'Start DeepSeek Harness web UI (dsh web)' };
+  const lines = [
     'Option Explicit',
     'Dim sh, sc, desktop, root, icon',
     'Set sh = CreateObject("WScript.Shell")',
@@ -148,15 +143,42 @@ function installWindows({ force, t, log }) {
     `root = ${vbString(root)}`,
     `icon = ${vbString(iconPath)}`,
     `Set sc = sh.CreateShortcut(desktop & "\\${SHORTCUT_NAME}.lnk")`,
-    'sc.TargetPath = "C:\\Windows\\System32\\wscript.exe"',
-    `sc.Arguments = """" & root & "\\start-silent.vbs" & """"`,
+    `sc.TargetPath = ${vbString(target.exe)}`,
+    target.args
+      ? `sc.Arguments = ${vbString(target.args)}`
+      : `sc.Arguments = """" & root & "\\start-silent.vbs" & """"`,
     'sc.WorkingDirectory = root',
     'sc.IconLocation = icon & ",0"',
-    `sc.Description = "Start DeepSeek Harness web UI (dsh web)"`,
+    `sc.Description = ${vbString(target.desc)}`,
     'sc.WindowStyle = 1',
     'sc.Save',
-  ].join('\r\n');
-  runVbs(script);
+  ];
+  return lines.join('\r\n');
+}
+
+function installWindows({ force, consoleMode, t, log }) {
+  const root = launcherRoot();
+  const iconPath = path.join(root, WINDOWS_ICON);
+  if (!fs.existsSync(iconPath)) throw new Error(t('doctor.iconNone'));
+
+  if (!force && shortcutExists()) {
+    log(t('shortcut.already', { name: SHORTCUT_NAME }));
+    return { installed: false, exists: true };
+  }
+
+  log(t('shortcut.installing', { name: SHORTCUT_NAME }));
+
+  if (consoleMode) {
+    // Console mode: the shortcut opens a visible cmd window running
+    // start-console.cmd; closing that window stops dsh.
+    runVbs(buildWindowsShortcutScript({ root, iconPath, consoleMode: true }));
+    log(t('shortcut.installedConsole', { name: SHORTCUT_NAME }));
+    return { installed: true, console: true };
+  }
+
+  const vbs = writeSilentLauncher();
+  log(t('shortcut.vbsWritten', { path: vbs }));
+  runVbs(buildWindowsShortcutScript({ root, iconPath, consoleMode: false }));
   log(t('shortcut.installed', { name: SHORTCUT_NAME }));
   return { installed: true };
 }
@@ -367,8 +389,8 @@ function uninstallMac({ t, log }) {
 // Entry points
 // ---------------------------------------------------------------------------
 
-export function installShortcut({ force = false, t, log = console.log }) {
-  if (WINDOWS) return installWindows({ force, t, log });
+export function installShortcut({ force = false, consoleMode = false, t, log = console.log }) {
+  if (WINDOWS) return installWindows({ force, consoleMode, t, log });
   if (DARWIN) return installMac({ force, t, log });
   if (process.platform === 'linux') return installLinux({ force, t, log });
   log(t('shortcut.unsupported'));

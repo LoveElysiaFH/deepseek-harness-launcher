@@ -86,6 +86,7 @@ If the harness lives in a non-standard location, point the launcher at it:
 
     'shortcut.installing': 'Creating desktop shortcut "{name}"...',
     'shortcut.installed': 'Shortcut "{name}" created on the Desktop (icon: black whale). Double-click it to start DeepSeek Harness.',
+    'shortcut.installedConsole': 'Shortcut "{name}" created on the Desktop in console mode. Double-click it to open the console; closing the console stops DeepSeek Harness.',
     'shortcut.already': 'Shortcut "{name}" already exists. Re-run with --force to overwrite.',
     'shortcut.uninstalled': 'Shortcut "{name}" removed from the Desktop.',
     'shortcut.missing': 'Shortcut "{name}" was not found on the Desktop.',
@@ -207,6 +208,7 @@ If the harness lives in a non-standard location, point the launcher at it:
 
     'shortcut.installing': '正在创建桌面快捷方式 "{name}"...',
     'shortcut.installed': '快捷方式 "{name}" 已创建到桌面（图标: 黑色小鲸鱼）。双击即可启动 DeepSeek Harness。',
+    'shortcut.installedConsole': '快捷方式 "{name}" 已按控制台模式创建到桌面。双击即弹出控制台窗口；关闭该窗口即停止 DeepSeek Harness。',
     'shortcut.already': '快捷方式 "{name}" 已存在。加 --force 可覆盖。',
     'shortcut.uninstalled': '已从桌面删除快捷方式 "{name}"。',
     'shortcut.missing': '桌面上未找到快捷方式 "{name}"。',

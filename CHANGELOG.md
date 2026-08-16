@@ -2,6 +2,16 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)。格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)。
 
+## [1.3.1] - 2025-08-14
+
+### 新增
+- 控制台模式可**持久化并联动桌面快捷方式**：`config set harness.console true` 后再
+  `install --force`，桌面快捷方式会改为在可见控制台窗口运行 dsh——双击弹控制台、
+  **关闭控制台即停止 harness**（改回 `false` 再 `install` 即恢复静默后台）。
+  - 新增持久化配置 `harness.console`（默认 false）；`start --console` 仍可单次启用
+  - `install` 按配置选择「静默 wscript」或「cmd 控制台」两种快捷方式目标
+- 文档：控制台模式章节补充持久化开启方法、配置表新增 `harness.console`（README 中英文）
+
 ## [1.3.0] - 2025-08-14
 
 ### 新增

@@ -110,7 +110,8 @@ async function cmdStatus(opts, t) {
 }
 
 function cmdInstall(opts, t) {
-  installShortcut({ force: opts.force, t });
+  const cfg = loadConfig();
+  installShortcut({ force: opts.force, consoleMode: cfg.harness.console === true, t });
 }
 
 function cmdUninstall(opts, t) {

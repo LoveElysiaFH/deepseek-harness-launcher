@@ -8,6 +8,7 @@
     "url": null,
     "timeoutSec": 90,
     "openBrowser": true,
-    "restartOnRerun": false
+    "restartOnRerun": false,
+    "console": false
   }
 }

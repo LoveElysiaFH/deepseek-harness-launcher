@@ -29,6 +29,7 @@ export const DEFAULTS = Object.freeze({
     timeoutSec: 90,
     openBrowser: true,
     restartOnRerun: false,
+    console: false,
   },
 });
 
@@ -98,8 +99,9 @@ export function loadConfig(cli = {}) {
   // Effective URL derived from the port when not configured explicitly.
   merged.effectiveUrl = h.url ?? `http://127.0.0.1:${h.port}`;
   merged.effectivePort = h.port;
-  // --console is a one-off flag (not persisted): run dsh in a visible console.
-  merged.consoleMode = cli.console === true;
+  // Console mode: enabled via persisted `harness.console` or the one-off
+  // `--console` flag; either one runs dsh in a visible console.
+  merged.consoleMode = h.console === true || cli.console === true;
   return merged;
 }
 
