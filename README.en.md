@@ -110,6 +110,10 @@ logs; closing it stops the harness.
 
 > Background vs console: in background mode closing the window does *not* stop it (use `stop`);
 > in console mode closing the window stops it.
+>
+> Console mode **always opens a window**. If dsh is already running:
+> - started by this launcher → it is taken over and restarted in the console;
+> - started elsewhere (e.g. manually via `npx`) → the console shows an explanation and stays open; it is never killed.
 
 ## Prerequisites
 

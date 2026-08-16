@@ -101,13 +101,17 @@ export function loadConfig(cli = {}) {
   merged.effectivePort = h.port;
   // Console mode: enabled via persisted `harness.console` or the one-off
   // `--console` flag; either one runs dsh in a visible console.
-  merged.consoleMode = h.console === true || cli.console === true;
+  merged.consoleMode = resolveConsoleMode(h.console, cli.console);
   return merged;
 }
 
+/** Console mode is on when either the persisted config or the CLI flag says so. */
+export function resolveConsoleMode(harnessConsole, cliConsole) {
+  return harnessConsole === true || cliConsole === true;
+}
+
 /** Read a dotted path ("harness.port") from a plain object. */
-export function getByPath(obj, keyPath) {
-  return keyPath.split('.').reduce((acc, key) => {
+export function getByPath(obj, keyPath) {  return keyPath.split('.').reduce((acc, key) => {
     if (acc === null || acc === undefined) return undefined;
     return acc[key];
   }, obj);

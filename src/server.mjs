@@ -96,6 +96,24 @@ function killPid(pid) {
 
 const WINDOWS = () => process.platform === 'win32';
 
+/** Kill a launcher-managed instance and wait for its port to free up. */
+async function stopManagedAndRelease(pid, hostname, port) {
+  killPid(pid);
+  fs.rmSync(PID_FILE, { force: true });
+  const deadline = Date.now() + 15000;
+  while (await portOpen(hostname, port) && Date.now() < deadline) {
+    await sleep(300);
+  }
+}
+
+/** Keep the current process (and its console window) alive until it is closed. */
+async function keepConsoleOpen() {
+  // A never-ending timer keeps the event loop alive so the console window
+  // stays open; closing the window terminates the process anyway.
+  setInterval(() => {}, 1 << 30);
+  await new Promise(() => {});
+}
+
 /** Append the last few lines of the log to a message. */
 export function logTail(maxLines = 8) {
   try {
@@ -114,31 +132,42 @@ export async function start(cfg, runner, t, log = console.log) {
   ensureRunDir();
   const url = cfg.effectiveUrl;
   const parsed = new URL(url);
+  const consoleMode = cfg.consoleMode === true;
 
   if (await serving(url)) {
     const pid = readPid();
     const managed = pid !== null && isPidAlive(pid);
-    const action = planRestart({
-      serving: true,
-      managed,
-      restartOnRerun: cfg.harness.restartOnRerun,
-    });
-    if (action === 'restart') {
-      log(t('server.restarting', { url, pid }));
-      killPid(pid);
-      fs.rmSync(PID_FILE, { force: true });
-      // Wait for the port to actually free up before respawning.
-      const freeDeadline = Date.now() + 15000;
-      while (await portOpen(parsed.hostname, Number(parsed.port)) && Date.now() < freeDeadline) {
-        await sleep(300);
+    if (consoleMode) {
+      if (managed) {
+        // Console mode "takes over" the launcher's own background instance.
+        log(t('server.restarting', { url, pid }));
+        await stopManagedAndRelease(pid, parsed.hostname, Number(parsed.port));
+        // Fall through to spawn a fresh instance in this console.
+      } else {
+        // Running, but started elsewhere (e.g. a terminal). Keep the console
+        // window open with an explanation instead of flashing and closing.
+        log(t('server.consoleForeign', { url }));
+        if (cfg.harness.openBrowser) openBrowser(url, t, log);
+        await keepConsoleOpen();
+        return { alreadyRunning: true };
       }
-      // Fall through to spawn a fresh instance below.
     } else {
-      log(cfg.harness.restartOnRerun
-        ? t('server.restartSkipped', { url })
-        : t('server.already', { url }));
-      if (cfg.harness.openBrowser) openBrowser(url, t, log);
-      return { alreadyRunning: true };
+      const action = planRestart({
+        serving: true,
+        managed,
+        restartOnRerun: cfg.harness.restartOnRerun,
+      });
+      if (action === 'restart') {
+        log(t('server.restarting', { url, pid }));
+        await stopManagedAndRelease(pid, parsed.hostname, Number(parsed.port));
+        // Fall through to spawn a fresh instance below.
+      } else {
+        log(cfg.harness.restartOnRerun
+          ? t('server.restartSkipped', { url })
+          : t('server.already', { url }));
+        if (cfg.harness.openBrowser) openBrowser(url, t, log);
+        return { alreadyRunning: true };
+      }
     }
   }
   if (await portOpen(parsed.hostname, Number(parsed.port))) {
@@ -146,7 +175,6 @@ export async function start(cfg, runner, t, log = console.log) {
   }
 
   const commandLine = [runner.command, ...runner.args].join(' ');
-  const consoleMode = cfg.consoleMode === true;
   const outputLabel = consoleMode ? t('server.consoleLabel') : LOG_FILE;
   log(t('server.starting', { command: commandLine, log: outputLabel }));
   if (runner.needsBuild) log(t('server.needsBuild'));
