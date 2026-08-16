@@ -11,6 +11,7 @@ Assuming you already have DeepSeek Harness installed, it:
 - 🔍 Locates your harness automatically (`dsh` on PATH, or a source checkout)
 - 🚀 Starts `dsh web` if it is not running (never spawns a duplicate)
 - 🔄 Optional “restart” mode: when enabled, re-launching stops the old `dsh web` and starts a fresh one (off by default)
+- 🖥️ Optional “console” mode: run in a visible window with live logs; closing the window stops it (background by default)
 - 🌐 Waits for the web UI and opens your browser (default `http://127.0.0.1:3080`)
 - 🐳 Creates a **“DeepSeek Harness” desktop shortcut with the black whale icon**
   (Windows `.lnk` / macOS `.app` / Linux `.desktop`)
@@ -77,6 +78,22 @@ node bin\launcher.mjs stop
 >   terminal), go back to that terminal and press `Ctrl+C` (or close it); the launcher won't touch it.
 > - Double-clicking the desktop shortcut only *starts*; it does not stop — unless you enabled
 >   [restart mode](#restart-mode), in which case it stops the old one before starting a new one.
+
+## Console mode (visible log window)
+
+By default the launcher runs dsh silently in the **background (no window)**. To watch the
+logs live, or to make “close the window = stop”, use console mode:
+
+```sh
+node bin\launcher.mjs start --console
+```
+
+- In a terminal, dsh's logs stream into that window; press `Ctrl+C` to stop.
+- **Windows double-click**: double-click `start-console.cmd` in the launcher folder to open a
+  console window with live logs — **closing that window stops DeepSeek Harness**.
+
+> Background vs console: in background mode closing the window does *not* stop it (use `stop`);
+> in console mode closing the window stops it.
 
 ## Prerequisites
 
@@ -258,6 +275,7 @@ deepseek-harness-launcher/
 ├── test/                     node --test unit tests
 ├── .github/workflows/        CI (multi-OS, multi-Node) + automated Release
 └── start.cmd / stop.cmd      visible-console debugging entry points (Windows only)
+└── start-console.cmd         console-mode double-click entry (live logs; close to stop, Windows only)
 ```
 
 ## FAQ

@@ -28,6 +28,7 @@ const SHIP = [
   'src',
   'assets',
   'start.cmd',
+  'start-console.cmd',
   'stop.cmd',
   'config.example.json',
   'README.md',

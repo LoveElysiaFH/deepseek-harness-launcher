@@ -146,27 +146,41 @@ export async function start(cfg, runner, t, log = console.log) {
   }
 
   const commandLine = [runner.command, ...runner.args].join(' ');
-  log(t('server.starting', { command: commandLine, log: LOG_FILE }));
+  const consoleMode = cfg.consoleMode === true;
+  const outputLabel = consoleMode ? t('server.consoleLabel') : LOG_FILE;
+  log(t('server.starting', { command: commandLine, log: outputLabel }));
   if (runner.needsBuild) log(t('server.needsBuild'));
+  if (consoleMode) log(t('server.consoleHint'));
 
-  const fd = fs.openSync(LOG_FILE, 'a');
   let child;
-  try {
+  if (consoleMode) {
+    // Foreground mode: dsh's output goes to this console and the process stays
+    // attached, so the window stays open until the user closes it / Ctrl+C.
     child = spawn(runner.command, runner.args, {
       cwd: runner.cwd,
       shell: runner.shell,
-      detached: true,
-      windowsHide: true,
-      stdio: ['ignore', fd, fd],
+      stdio: 'inherit',
       env: { ...process.env, ...(cfg.harness.env ?? {}) },
     });
-  } catch (err) {
+  } else {
+    const fd = fs.openSync(LOG_FILE, 'a');
+    try {
+      child = spawn(runner.command, runner.args, {
+        cwd: runner.cwd,
+        shell: runner.shell,
+        detached: true,
+        windowsHide: true,
+        stdio: ['ignore', fd, fd],
+        env: { ...process.env, ...(cfg.harness.env ?? {}) },
+      });
+    } catch (err) {
+      fs.closeSync(fd);
+      throw new Error(`${err.message}\ncommand: ${commandLine}`);
+    }
     fs.closeSync(fd);
-    throw new Error(`${err.message}\ncommand: ${commandLine}`);
+    child.unref();
   }
-  fs.closeSync(fd);
   fs.writeFileSync(PID_FILE, `${child.pid}\n`);
-  child.unref();
 
   const startedAt = Date.now();
   const deadline = startedAt + cfg.harness.timeoutSec * 1000;
@@ -177,21 +191,34 @@ export async function start(cfg, runner, t, log = console.log) {
 
   while (Date.now() < deadline) {
     if (exitCode !== null) {
+      const suffix = consoleMode ? '' : `\n${logTail()}`;
       throw new Error(
-        `${t('server.exited', { code: exitCode, log: LOG_FILE })}\n${logTail()}`,
+        `${t('server.exited', { code: exitCode, log: outputLabel })}${suffix}`,
       );
     }
     if (await serving(url)) {
       const seconds = ((Date.now() - startedAt) / 1000).toFixed(1);
       log(t('server.ready', { url, seconds }));
       if (cfg.harness.openBrowser) openBrowser(url, t, log);
+      if (consoleMode) {
+        // Stay attached so the console window stays open; closing it (or
+        // Ctrl+C) stops dsh and releases the pid file.
+        return await new Promise((resolve) => {
+          const finish = (code) => {
+            fs.rmSync(PID_FILE, { force: true });
+            resolve({ started: true, pid: child.pid, foreground: true, exitCode: code });
+          };
+          if (exitCode !== null) finish(exitCode);
+          else child.once('exit', finish);
+        });
+      }
       return { started: true, pid: child.pid };
     }
     await sleep(500);
   }
 
   throw Object.assign(
-    new Error(`${t('server.timeout', { seconds: cfg.harness.timeoutSec, log: LOG_FILE })}\n${logTail()}`),
+    new Error(`${t('server.timeout', { seconds: cfg.harness.timeoutSec, log: outputLabel })}${consoleMode ? '' : `\n${logTail()}`}`),
     { exitCode: 4 },
   );
 }

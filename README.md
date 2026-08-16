@@ -11,6 +11,7 @@
 - 🔍 自动找到你机器上的 harness（PATH 上的 `dsh` 命令，或源码 checkout 目录）
 - 🚀 自动启动 `dsh web`（已在运行就直接打开，绝不重复启动）
 - 🔄 可选「重启」模式：开启后，重新双击会先停掉旧的 `dsh web` 再重新启动（默认关闭）
+- 🖥️ 可选「控制台」模式：在可见窗口实时显示日志，关窗口即停止（默认后台静默运行）
 - 🌐 等待 Web 界面就绪后**自动打开浏览器**（默认 `http://127.0.0.1:3080`）
 - 🐳 创建桌面快捷方式 **“DeepSeek Harness”**，图标是**黑色小鲸鱼**
   （Windows `.lnk` / macOS `.app` / Linux `.desktop`）
@@ -76,6 +77,21 @@ node bin\launcher.mjs stop
 >   请回到那个终端按 `Ctrl+C` 或直接关掉终端窗口；启动器管不到它。
 > - 双击桌面快捷方式只负责「启动」，不会关闭；除非你开启了[重启模式](#重启模式)，
 >   那时它才会「先关旧的再开新的」。
+
+## 控制台模式（显示日志窗口）
+
+默认启动器在**后台静默运行** dsh（无窗口）。想看实时日志、或想「关窗口即停止」，
+用控制台模式：
+
+```sh
+node bin\launcher.mjs start --console
+```
+
+- 在终端里运行，dsh 日志会**实时显示**在当前窗口，按 `Ctrl+C` 即停止；
+- **Windows 双击**：双击启动器目录里的 `start-console.cmd`，会弹出一个控制台窗口实时显示
+  dsh 日志，**关掉这个窗口就停止 DeepSeek Harness**。
+
+> 与后台模式的区别：后台模式关窗口不会停、要用 `stop`；控制台模式关窗口即停。
 
 ## 前提条件
 
@@ -255,6 +271,7 @@ deepseek-harness-launcher/
 ├── test/                     node --test 单元测试
 ├── .github/workflows/        CI（多系统多 Node 版本）+ 自动 Release
 └── start.cmd / stop.cmd      可见控制台的调试用入口（仅 Windows）
+└── start-console.cmd         控制台模式双击入口（实时日志，关窗口即停，仅 Windows）
 ```
 
 ## 常见问题

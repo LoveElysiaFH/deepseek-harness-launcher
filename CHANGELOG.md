@@ -2,6 +2,15 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)。格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)。
 
+## [1.3.0] - 2025-08-14
+
+### 新增
+- 可选「控制台模式」：`start --console` 让 `dsh web` 在**可见控制台前台运行**，
+  实时显示日志；关闭窗口或 `Ctrl+C` 即停止（区别于默认的后台静默运行）。
+  - Windows 新增双击入口 `start-console.cmd`
+  - `--console` 为一次性开关，不写入配置（避免与静默桌面快捷方式冲突）
+- 文档：功能列表、控制台模式章节、开启方法与与后台模式的区别（README 中英文）
+
 ## [1.2.0] - 2025-08-14
 
 ### 新增

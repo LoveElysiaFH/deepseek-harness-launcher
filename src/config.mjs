@@ -98,6 +98,8 @@ export function loadConfig(cli = {}) {
   // Effective URL derived from the port when not configured explicitly.
   merged.effectiveUrl = h.url ?? `http://127.0.0.1:${h.port}`;
   merged.effectivePort = h.port;
+  // --console is a one-off flag (not persisted): run dsh in a visible console.
+  merged.consoleMode = cli.console === true;
   return merged;
 }
 
