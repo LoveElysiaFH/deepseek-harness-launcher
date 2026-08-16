@@ -2,6 +2,15 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)。格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)。
 
+## [1.3.3] - 2025-08-14
+
+### 修复
+- 「重启」现在会**真正重启**：`restartOnRerun=true` 或控制台模式下，若 dsh 已在运行，
+  会按端口找到并停掉该实例（无论是否由本启动器启动），再重新启动——
+  此前只重启「由本启动器启动的」实例，手动 `npx` 开的会被跳过，导致双击快捷方式不重启。
+- 新增 `findPidByPort`（Windows 用 netstat、POSIX 用 lsof）定位占用端口的进程。
+- 文档：更正重启/控制台模式说明并补充风险提示（强制重启会丢失未保存会话）。
+
 ## [1.3.2] - 2025-08-14
 
 ### 修复

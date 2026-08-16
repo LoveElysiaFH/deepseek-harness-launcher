@@ -67,11 +67,12 @@ export function isPidAlive(pid) {
  * Decide what `start` should do when the web UI is already serving.
  * `managed` means the running instance was started by this launcher (pid file).
  * Returns `'restart'` (kill + respawn), `'open'` (just open the browser) or
- * `'fresh'` (nothing is serving).
+ * `'fresh'` (nothing is serving). Restart mode and console mode both request
+ * a real restart regardless of who started the running instance.
  */
-export function planRestart({ serving: isServing, managed, restartOnRerun }) {
+export function planRestart({ serving: isServing, managed, restartOnRerun, consoleMode = false }) {
   if (!isServing) return 'fresh';
-  if (restartOnRerun && managed) return 'restart';
+  if (consoleMode || restartOnRerun) return 'restart';
   return 'open';
 }
 
@@ -92,6 +93,36 @@ function killPid(pid) {
       }
     }
   }
+}
+
+/** Find the PID listening on `port`, or null if none can be determined. */
+export function findPidByPort(port) {
+  if (WINDOWS()) {
+    const res = spawnSync('netstat', ['-ano', '-p', 'TCP'], {
+      windowsHide: true,
+      encoding: 'utf8',
+    });
+    if (res.status !== 0) return null;
+    for (const raw of (res.stdout ?? '').split(/\r?\n/)) {
+      const line = raw.trim();
+      if (!line) continue;
+      // netstat -ano columns: proto, localAddr, foreignAddr, state, pid
+      const parts = line.split(/\s+/);
+      if (parts.length < 5 || parts[3].toUpperCase() !== 'LISTENING') continue;
+      const localPort = parts[1].slice(parts[1].lastIndexOf(':') + 1);
+      if (Number(localPort) === port) {
+        const pid = Number(parts[4]);
+        if (Number.isInteger(pid) && pid > 0) return pid;
+      }
+    }
+    return null;
+  }
+  // POSIX best effort via lsof.
+  const res = spawnSync('lsof', ['-ti', `tcp:${port}`], { encoding: 'utf8' });
+  if (res.status === 0 && (res.stdout ?? '').trim()) {
+    return Number(res.stdout.trim().split(/\s+/)[0]);
+  }
+  return null;
 }
 
 const WINDOWS = () => process.platform === 'win32';
@@ -137,37 +168,30 @@ export async function start(cfg, runner, t, log = console.log) {
   if (await serving(url)) {
     const pid = readPid();
     const managed = pid !== null && isPidAlive(pid);
-    if (consoleMode) {
-      if (managed) {
-        // Console mode "takes over" the launcher's own background instance.
-        log(t('server.restarting', { url, pid }));
-        await stopManagedAndRelease(pid, parsed.hostname, Number(parsed.port));
-        // Fall through to spawn a fresh instance in this console.
+    const action = planRestart({
+      serving: true,
+      managed,
+      restartOnRerun: cfg.harness.restartOnRerun,
+      consoleMode,
+    });
+    if (action === 'restart') {
+      // Restart: kill whatever is serving on the port — our own pid, or the
+      // process discovered via netstat/lsof when it was started elsewhere.
+      const targetPid = managed ? pid : findPidByPort(Number(parsed.port));
+      if (targetPid) {
+        log(t('server.restarting', { url, pid: targetPid }));
+        await stopManagedAndRelease(targetPid, parsed.hostname, Number(parsed.port));
+        // Fall through to spawn a fresh instance below.
       } else {
-        // Running, but started elsewhere (e.g. a terminal). Keep the console
-        // window open with an explanation instead of flashing and closing.
-        log(t('server.consoleForeign', { url }));
+        log(t('server.already', { url }));
         if (cfg.harness.openBrowser) openBrowser(url, t, log);
-        await keepConsoleOpen();
+        if (consoleMode) await keepConsoleOpen();
         return { alreadyRunning: true };
       }
     } else {
-      const action = planRestart({
-        serving: true,
-        managed,
-        restartOnRerun: cfg.harness.restartOnRerun,
-      });
-      if (action === 'restart') {
-        log(t('server.restarting', { url, pid }));
-        await stopManagedAndRelease(pid, parsed.hostname, Number(parsed.port));
-        // Fall through to spawn a fresh instance below.
-      } else {
-        log(cfg.harness.restartOnRerun
-          ? t('server.restartSkipped', { url })
-          : t('server.already', { url }));
-        if (cfg.harness.openBrowser) openBrowser(url, t, log);
-        return { alreadyRunning: true };
-      }
+      log(t('server.already', { url }));
+      if (cfg.harness.openBrowser) openBrowser(url, t, log);
+      return { alreadyRunning: true };
     }
   }
   if (await portOpen(parsed.hostname, Number(parsed.port))) {

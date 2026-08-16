@@ -111,9 +111,9 @@ logs; closing it stops the harness.
 > Background vs console: in background mode closing the window does *not* stop it (use `stop`);
 > in console mode closing the window stops it.
 >
-> Console mode **always opens a window**. If dsh is already running:
-> - started by this launcher → it is taken over and restarted in the console;
-> - started elsewhere (e.g. manually via `npx`) → the console shows an explanation and stays open; it is never killed.
+> Console mode **always opens a window**: if dsh is already running it is **stopped first and
+> restarted in the console** — no matter who started it (including a manual `npx` launch).
+> ⚠️ This is a forced restart and kills the running session; unsaved chats/tasks are lost.
 
 ## Prerequisites
 
@@ -260,9 +260,8 @@ node bin\launcher.mjs config set harness.restartOnRerun true
 Or for a single run: `node bin\launcher.mjs start --restart`.
 
 > ⚠️ Risk note: restarting terminates the currently running session (unsaved chats/tasks
-> are lost) and briefly disconnects. Also, only instances started by this launcher
-> (with a pid file) are restarted; one started manually via `npx @deepseek-ai/dsh web`
-> is **skipped** (browser only) so your other processes are never killed.
+> are lost) and briefly disconnects. It stops **any** dsh instance on that port, whether
+> started by this launcher or manually via `npx @deepseek-ai/dsh web`.
 
 ## Icon
 
